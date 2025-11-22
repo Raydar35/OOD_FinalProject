@@ -1,38 +1,58 @@
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# Java artifacts
+*.class
+*.jar
+*.war
+*.ear
+*.nar
 
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
-*.iml
-*.ipr
+# Maven
+/target/
+/pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/wrapper/maven-wrapper.jar
 
-### Eclipse ###
-.apt_generated
+# IntelliJ IDEA
+/.idea/
+/*.iml
+/out/
+
+# Eclipse
 .classpath
-.factorypath
 .project
-.settings
-.springBeans
-.sts4-cache
+.settings/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
+# VS Code
 .vscode/
 
-### Mac OS ###
-.DS_Store
+# OS files (macOS / Windows)
+/.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Logs, temp, and runtime files
+*.log
+*.tmp
+*.swp
+*~ 
+*.lock
+hs_err_pid*
+
+# Environment / local configs
+.env
+local.properties
+
+# Build tool caches / wrapper (if any)
+.gradle/
+.idea_modules/
+
+# Coverage / reports
+coverage/
+site/
