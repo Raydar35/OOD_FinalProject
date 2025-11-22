@@ -65,10 +65,12 @@ Run in IntelliJ on Windows by running the `main` in `src/main/java/com/wizbiz/wi
 - `GameController` updates `actionLog` and calls `GameUI.refreshUI()` when `ui` is set.
 
 ## TODO / Known limitations
-1. No persistence or saving.
-2. No proper mana regeneration beyond `Actor.startTurnEffects` increment (currently \+1 MP each turn).
-3. Enemy AI is trivial and assumes Enemy has matching cards in hand.
-4. No validation or error messages shown to player when a cast fails due to missing mana or missing card (only logged).
+1. No win/loss conditions implemented yet.
+2. No animations or visual effects; purely text-based logging in UI.
+3. Need discard pile and reshuffling when deck is exhausted.
+4. Enemy AI is trivial and assumes Enemy has matching cards in hand.
+5. No validation or error messages shown to player when a cast fails due to missing mana or missing card (only logged).
+
 
 ## Where to look first when editing
 - Gameplay rules: `GameController.java`, `Spell.java`, `Actor.java`.
