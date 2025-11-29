@@ -12,9 +12,17 @@ public abstract class Actor {
     protected List<SpellCard> hand = new ArrayList<>();
     protected List<StatusEffect> effects = new ArrayList<>();
 
+    // MAXIMUM HAND SIZE
+    private static final int MAX_HAND_SIZE = 5;
+
     public void drawCards(DeckIterator it, int count) {
         for (int i = 0; i < count && it.hasNext(); i++) {
-            hand.add(it.next());
+            // Only draw if hand isn't full
+            if (hand.size() < MAX_HAND_SIZE) {
+                hand.add(it.next());
+            } else {
+                break; // Hand is full, stop drawing
+            }
         }
     }
 
@@ -47,4 +55,6 @@ public abstract class Actor {
     public int getHp() { return healthPoints; }
     public int getMp() { return manaPoints; }
     public List<SpellCard> getHand() { return hand; }
+
+    public int getMaxHandSize() { return MAX_HAND_SIZE; }
 }
