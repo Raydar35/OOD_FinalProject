@@ -37,7 +37,7 @@ public class GameController {
         enemy = new Enemy();
 
         deck = new Deck();                 // shared deck
-        deckIterator = deck.iterator();    // single iterator fro whole game
+        deckIterator = deck.iterator();    // single iterator from whole game
 
         // initial draws
         player.drawCards(deckIterator, 5);
@@ -47,6 +47,26 @@ public class GameController {
         logAction("Player and Enemy drew initial hands.");
 
         // initial state
+        changeState(new PlayerTurnState());
+    }
+
+    /**
+     * Start game with customized player and auto-generated enemy
+     */
+    public void startGameWithCustomizations(Player customPlayer, Enemy customEnemy) {
+        player = customPlayer;
+        enemy = customEnemy;
+
+        deck = new Deck();
+        deckIterator = deck.iterator();
+
+        player.drawCards(deckIterator, 5);
+        enemy.drawCards(deckIterator, 5);
+
+        logAction("Game started.");
+        logAction(player.getName() + " vs " + enemy.getName() + "!");
+        logAction("Both wizards drew initial hands.");
+
         changeState(new PlayerTurnState());
     }
 
