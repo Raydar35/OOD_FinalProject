@@ -21,9 +21,23 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 /**
- * Professional Wizardly UI with Cohesive Design & Win/Loss Screens
+ * Professional Wizardly UI - Fully Polished & Consistent
+ * Resolution: 900x750 across ALL screens
+ * Cohesive design, smooth animations, unified spacing
  */
 public class GameUI extends Application {
+
+    // CONSISTENT DIMENSIONS
+    private static final double WINDOW_WIDTH = 900;
+    private static final double WINDOW_HEIGHT = 750;
+
+    // UNIFIED SPACING
+    private static final double PADDING_LARGE = 30;
+    private static final double PADDING_MEDIUM = 20;
+    private static final double PADDING_SMALL = 15;
+    private static final double SPACING_LARGE = 25;
+    private static final double SPACING_MEDIUM = 15;
+    private static final double SPACING_SMALL = 10;
 
     private final GameController gc = GameController.getInstance();
 
@@ -38,7 +52,7 @@ public class GameUI extends Application {
     private ProgressBar enemyMpBar = new ProgressBar(0.0);
 
     private TextArea logArea = new TextArea();
-    private HBox handPane = new HBox(15);
+    private HBox handPane = new HBox(SPACING_MEDIUM);
     private Button endTurnBtn = new Button("END TURN");
 
     private Pane animationPane;
@@ -58,155 +72,56 @@ public class GameUI extends Application {
     @Override
     public void start(Stage stage) {
         this.primaryStage = stage;
+        primaryStage.setResizable(true); // Allow window to be resized, minimized, maximized
         showCustomizationScreen();
     }
 
     private void showCustomizationScreen() {
         StackPane root = new StackPane();
 
-        // Enhanced gradient background with more depth
-        BackgroundFill bgFill = new BackgroundFill(
-                new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                        new Stop(0, Color.web("#0a0612")),
-                        new Stop(0.3, Color.web("#1a0f2e")),
-                        new Stop(0.6, Color.web("#2d1b4e")),
-                        new Stop(1, Color.web("#1e0f3d"))
-                ),
-                CornerRadii.EMPTY,
-                Insets.EMPTY
-        );
-        root.setBackground(new Background(bgFill));
+        // Deep gradient background (consistent across all screens)
+        root.setBackground(createDeepPurpleBackground());
 
         // Animated stars background
         Pane starsPane = createStarsEffect();
 
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        scrollPane.setFitToWidth(true);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-
-        VBox customizationBox = new VBox(20);
+        VBox customizationBox = new VBox(SPACING_MEDIUM);
         customizationBox.setAlignment(Pos.CENTER);
-        customizationBox.setPadding(new Insets(40, 30, 40, 30));
+        customizationBox.setPadding(new Insets(PADDING_MEDIUM, PADDING_LARGE, PADDING_MEDIUM, PADDING_LARGE));
+        customizationBox.setMaxHeight(WINDOW_HEIGHT);
 
         // Enhanced title with subtitle
-        VBox titleBox = new VBox(5);
-        titleBox.setAlignment(Pos.CENTER);
-
-        Label title = new Label("✨ WIZARD CREATION CHAMBER ✨");
-        title.setFont(Font.font("Georgia", FontWeight.BOLD, 40));
-        title.setTextFill(Color.web("#FFD700"));
-
-        DropShadow titleGlow = new DropShadow();
-        titleGlow.setColor(Color.web("#FFA500"));
-        titleGlow.setRadius(30);
-        titleGlow.setSpread(0.9);
-        title.setEffect(titleGlow);
-
-        Label subtitle = new Label("Forge Your Destiny");
-        subtitle.setFont(Font.font("Georgia", FontWeight.NORMAL, 16));
-        subtitle.setTextFill(Color.web("#C4A47C"));
-        subtitle.setOpacity(0.8);
-
-        // Title animations
-        ScaleTransition pulse = new ScaleTransition(Duration.seconds(2), title);
-        pulse.setFromX(1.0);
-        pulse.setFromY(1.0);
-        pulse.setToX(1.05);
-        pulse.setToY(1.05);
-        pulse.setCycleCount(Animation.INDEFINITE);
-        pulse.setAutoReverse(true);
-        pulse.play();
-
-        FadeTransition subtitleFade = new FadeTransition(Duration.seconds(3), subtitle);
-        subtitleFade.setFromValue(0.6);
-        subtitleFade.setToValue(1.0);
-        subtitleFade.setCycleCount(Animation.INDEFINITE);
-        subtitleFade.setAutoReverse(true);
-        subtitleFade.play();
-
-        titleBox.getChildren().addAll(title, subtitle);
-
-        // Main customization panel with enhanced styling
-        VBox customPanel = new VBox(18);
-        customPanel.setPadding(new Insets(30));
-        customPanel.setAlignment(Pos.CENTER);
-        customPanel.setMaxWidth(750);
-        customPanel.setStyle(
-                "-fx-background-color: linear-gradient(to bottom, rgba(42, 26, 74, 0.9), rgba(28, 17, 51, 0.9));" +
-                        "-fx-border-color: linear-gradient(to right, #FFD700, #FFA500, #FFD700);" +
-                        "-fx-border-width: 3;" +
-                        "-fx-border-radius: 20;" +
-                        "-fx-background-radius: 20;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.4), 25, 0.3, 0, 0);"
+        VBox titleBox = createTitleSection(
+                "✨ WIZARD CREATION CHAMBER ✨",
+                "Forge Your Destiny",
+                34,
+                14
         );
 
-        // Enhanced preview section with decorative elements
-        VBox previewSection = new VBox(10);
-        previewSection.setAlignment(Pos.CENTER);
+        // Main customization panel
+        VBox customPanel = new VBox(SPACING_MEDIUM);
+        customPanel.setPadding(new Insets(SPACING_MEDIUM));
+        customPanel.setAlignment(Pos.CENTER);
+        customPanel.setMaxWidth(650);
+        customPanel.setStyle(createPanelStyle());
 
-        Label previewLabel = new Label("⚡ YOUR WIZARD ⚡");
-        previewLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 14));
-        previewLabel.setTextFill(Color.web("#FFD700"));
+        // Enhanced preview section
+        VBox previewSection = createPreviewSection();
 
-        StackPane previewPane = new StackPane();
-        previewPane.setPrefSize(140, 140);
-
-        // Outer decorative ring
-        Circle outerRing = new Circle(65);
-        outerRing.setFill(Color.TRANSPARENT);
-        outerRing.setStroke(Color.web("#FFD700"));
-        outerRing.setStrokeWidth(2);
-        outerRing.setOpacity(0.5);
-
-        // Rotating animation for outer ring
-        RotateTransition ringRotate = new RotateTransition(Duration.seconds(8), outerRing);
-        ringRotate.setByAngle(360);
-        ringRotate.setCycleCount(Animation.INDEFINITE);
-        ringRotate.play();
-
-        // Inner preview circle with gradient
-        previewCircle = new Circle(50);
-        previewCircle.setFill(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                new Stop(0, Color.web("#4169E1")),
-                new Stop(0.5, Color.web("#2E5CB8")),
-                new Stop(1, Color.web("#1E3A8A"))
-        ));
-
-        DropShadow circleGlow = new DropShadow();
-        circleGlow.setColor(Color.web("#4169E1"));
-        circleGlow.setRadius(20);
-        circleGlow.setSpread(0.5);
-        previewCircle.setEffect(circleGlow);
-
-        previewIcon = new Label("🧙‍♂️");
-        previewIcon.setFont(Font.font(60));
-
-        // Floating animation for icon
-        TranslateTransition float1 = new TranslateTransition(Duration.seconds(2), previewIcon);
-        float1.setByY(-5);
-        float1.setCycleCount(Animation.INDEFINITE);
-        float1.setAutoReverse(true);
-        float1.play();
-
-        previewPane.getChildren().addAll(outerRing, previewCircle, previewIcon);
-        previewSection.getChildren().addAll(previewLabel, previewPane);
-
-        // Separator line
+        // Separator
         Rectangle separator1 = createSeparator();
 
-        // Name input with enhanced styling
+        // Name input
         VBox nameBox = createEnhancedInputBox("🎭 Wizard Name", "Enter your legendary name...");
         TextField nameField = (TextField) ((HBox) nameBox.getChildren().get(1)).getChildren().get(0);
 
-        // Separator line
+        // Separator
         Rectangle separator2 = createSeparator();
 
         // Two-column grid for selections
         GridPane selectionsGrid = new GridPane();
-        selectionsGrid.setHgap(20);
-        selectionsGrid.setVgap(15);
+        selectionsGrid.setHgap(SPACING_MEDIUM);
+        selectionsGrid.setVgap(SPACING_SMALL);
         selectionsGrid.setAlignment(Pos.CENTER);
 
         // Face selection
@@ -245,60 +160,11 @@ public class GameUI extends Application {
         robeCombo.setOnAction(e -> updatePreviewColor(robeCombo.getValue()));
         staffCombo.setOnAction(e -> updatePreviewAnimation());
 
-        // Separator line
+        // Separator
         Rectangle separator3 = createSeparator();
 
-        // Enhanced start button with effects
-        Button startBtn = new Button("⚔️ ENTER THE ARENA ⚔️");
-        startBtn.setPrefWidth(320);
-        startBtn.setPrefHeight(55);
-        startBtn.setFont(Font.font("Georgia", FontWeight.BOLD, 18));
-        startBtn.setStyle(
-                "-fx-background-color: linear-gradient(to bottom, #FFD700, #FFA500, #FF8C00);" +
-                        "-fx-text-fill: #1a0f2e;" +
-                        "-fx-background-radius: 15;" +
-                        "-fx-border-color: white;" +
-                        "-fx-border-width: 3;" +
-                        "-fx-border-radius: 15;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.6), 15, 0.5, 0, 0);"
-        );
-
-        // Pulsing effect on button
-        ScaleTransition btnPulse = new ScaleTransition(Duration.seconds(1.5), startBtn);
-        btnPulse.setFromX(1.0);
-        btnPulse.setFromY(1.0);
-        btnPulse.setToX(1.03);
-        btnPulse.setToY(1.03);
-        btnPulse.setCycleCount(Animation.INDEFINITE);
-        btnPulse.setAutoReverse(true);
-        btnPulse.play();
-
-        startBtn.setOnMouseEntered(e -> {
-            startBtn.setStyle(
-                    "-fx-background-color: linear-gradient(to bottom, #FFE55C, #FFB84D, #FFA500);" +
-                            "-fx-text-fill: #1a0f2e;" +
-                            "-fx-background-radius: 15;" +
-                            "-fx-border-color: white;" +
-                            "-fx-border-width: 4;" +
-                            "-fx-border-radius: 15;" +
-                            "-fx-cursor: hand;" +
-                            "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.9), 25, 0.7, 0, 0);"
-            );
-        });
-
-        startBtn.setOnMouseExited(e -> {
-            startBtn.setStyle(
-                    "-fx-background-color: linear-gradient(to bottom, #FFD700, #FFA500, #FF8C00);" +
-                            "-fx-text-fill: #1a0f2e;" +
-                            "-fx-background-radius: 15;" +
-                            "-fx-border-color: white;" +
-                            "-fx-border-width: 3;" +
-                            "-fx-border-radius: 15;" +
-                            "-fx-cursor: hand;" +
-                            "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.6), 15, 0.5, 0, 0);"
-            );
-        });
+        // Enhanced start button
+        Button startBtn = createEnhancedButton("⚔️ ENTER THE ARENA ⚔️", 280, 48);
 
         startBtn.setOnAction(e -> {
             String name = nameField.getText().trim();
@@ -335,113 +201,653 @@ public class GameUI extends Application {
         );
 
         customizationBox.getChildren().addAll(titleBox, customPanel);
-        scrollPane.setContent(customizationBox);
-        root.getChildren().addAll(starsPane, scrollPane);
+        root.getChildren().addAll(starsPane, customizationBox);
 
-        Scene scene = new Scene(root, 900, 800);
+        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
         primaryStage.setScene(scene);
         primaryStage.setTitle("⚔️ Wizard Character Creation ⚔️");
         primaryStage.show();
 
         // Fade in animation
-        FadeTransition fade = new FadeTransition(Duration.seconds(1.2), root);
-        fade.setFromValue(0);
-        fade.setToValue(1);
-        fade.play();
+        playFadeIn(root);
     }
 
-    private Pane createStarsEffect() {
-        Pane starsPane = new Pane();
-        starsPane.setMouseTransparent(true);
+    private void startBattle() {
+        gameEnded = false; // Reset game state
 
-        // Create twinkling stars
-        for (int i = 0; i < 50; i++) {
-            Circle star = new Circle(1 + Math.random() * 2);
-            star.setFill(Color.WHITE);
-            star.setOpacity(0.3 + Math.random() * 0.7);
-            star.setCenterX(Math.random() * 900);
-            star.setCenterY(Math.random() * 800);
+        StackPane root = new StackPane();
+        root.setBackground(createDeepPurpleBackground());
 
-            // Twinkling animation
-            FadeTransition twinkle = new FadeTransition(
-                    Duration.seconds(1 + Math.random() * 3),
-                    star
-            );
-            twinkle.setFromValue(0.2);
-            twinkle.setToValue(1.0);
-            twinkle.setCycleCount(Animation.INDEFINITE);
-            twinkle.setAutoReverse(true);
-            twinkle.setDelay(Duration.seconds(Math.random() * 2));
-            twinkle.play();
+        // Stars for battle screen
+        starsPane = createStarsEffect();
 
-            starsPane.getChildren().add(star);
-        }
+        BorderPane mainLayout = new BorderPane();
+        mainLayout.setPadding(new Insets(PADDING_SMALL));
 
-        return starsPane;
+        animationPane = new Pane();
+        animationPane.setMouseTransparent(true);
+
+        VBox topSection = createTopSection();
+        VBox centerSection = createCenterSection();
+        VBox bottomSection = createBottomSection();
+
+        mainLayout.setTop(topSection);
+        mainLayout.setCenter(centerSection);
+        mainLayout.setBottom(bottomSection);
+
+        root.getChildren().addAll(starsPane, mainLayout, animationPane);
+
+        endTurnBtn.setOnAction(e -> {
+            if (!gameEnded) {
+                gc.endTurn();
+                playTurnTransitionAnimation();
+            }
+        });
+
+        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("⚔️ " + playerCustomization.getPlayerName() + " vs " + enemyCustomization.getEnemyName() + " ⚔️");
+
+        gc.setUI(this);
+
+        Player customPlayer = new Player(playerCustomization);
+        Enemy customEnemy = new Enemy(enemyCustomization);
+        gc.startGameWithCustomizations(customPlayer, customEnemy);
+        refreshUI();
+
+        playFadeIn(root);
     }
 
-    private Pane createVictoryStars() {
-        Pane starsPane = new Pane();
-        starsPane.setMouseTransparent(true);
+    private VBox createTopSection() {
+        VBox top = new VBox(SPACING_SMALL);
+        top.setAlignment(Pos.CENTER);
+        top.setPadding(new Insets(PADDING_SMALL, 0, 0, 0));
 
-        // Create twinkling stars for victory screen
-        for (int i = 0; i < 50; i++) {
-            Circle star = new Circle(1 + Math.random() * 2);
-            star.setFill(Color.web("#FFD700"));
-            star.setOpacity(0.3 + Math.random() * 0.7);
-            star.setCenterX(Math.random() * 900);
-            star.setCenterY(Math.random() * 750);
+        // Title
+        VBox titleBox = createTitleSection(
+                "⚔️ ARENA OF MYSTIC COMBAT ⚔️",
+                "Battle for Magical Supremacy",
+                28,
+                12
+        );
 
-            // Twinkling animation
-            FadeTransition twinkle = new FadeTransition(
-                    Duration.seconds(1 + Math.random() * 3),
-                    star
-            );
-            twinkle.setFromValue(0.2);
-            twinkle.setToValue(1.0);
-            twinkle.setCycleCount(Animation.INDEFINITE);
-            twinkle.setAutoReverse(true);
-            twinkle.setDelay(Duration.seconds(Math.random() * 2));
-            twinkle.play();
+        // Battle arena
+        HBox arena = createBattleArena();
 
-            starsPane.getChildren().add(star);
-        }
-
-        return starsPane;
+        top.getChildren().addAll(titleBox, arena);
+        return top;
     }
 
-    private Pane createDefeatStars() {
-        Pane starsPane = new Pane();
-        starsPane.setMouseTransparent(true);
+    private HBox createBattleArena() {
+        HBox arena = new HBox(30);
+        arena.setAlignment(Pos.CENTER);
+        arena.setPadding(new Insets(PADDING_SMALL));
+        arena.setStyle(createPanelStyle());
 
-        // Create twinkling stars for defeat screen
-        for (int i = 0; i < 50; i++) {
-            Circle star = new Circle(1 + Math.random() * 2);
-            star.setFill(Color.web("#DC143C"));
-            star.setOpacity(0.3 + Math.random() * 0.7);
-            star.setCenterX(Math.random() * 900);
-            star.setCenterY(Math.random() * 750);
+        VBox playerBox = createCharacterBox(true);
 
-            // Twinkling animation
-            FadeTransition twinkle = new FadeTransition(
-                    Duration.seconds(1 + Math.random() * 3),
-                    star
-            );
-            twinkle.setFromValue(0.2);
-            twinkle.setToValue(1.0);
-            twinkle.setCycleCount(Animation.INDEFINITE);
-            twinkle.setAutoReverse(true);
-            twinkle.setDelay(Duration.seconds(Math.random() * 2));
-            twinkle.play();
+        // Enhanced VS section
+        VBox vsBox = new VBox(5);
+        vsBox.setAlignment(Pos.CENTER);
 
-            starsPane.getChildren().add(star);
-        }
+        Label vsLabel = new Label("⚔️\nVS\n⚔️");
+        vsLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 24));
+        vsLabel.setTextFill(Color.web("#FFD700"));
+        vsLabel.setStyle("-fx-alignment: center;");
+        vsLabel.setEffect(createGlowEffect(Color.web("#FFA500"), 15, 0.6));
 
-        return starsPane;
+        // Rotating animation
+        RotateTransition rotate = new RotateTransition(Duration.seconds(4), vsLabel);
+        rotate.setByAngle(360);
+        rotate.setCycleCount(Animation.INDEFINITE);
+        rotate.play();
+
+        vsBox.getChildren().add(vsLabel);
+
+        VBox enemyBox = createCharacterBox(false);
+
+        arena.getChildren().addAll(playerBox, vsBox, enemyBox);
+        return arena;
+    }
+
+    private VBox createCharacterBox(boolean isPlayer) {
+        VBox box = new VBox(SPACING_SMALL);
+        box.setAlignment(Pos.CENTER);
+        box.setPadding(new Insets(PADDING_SMALL));
+        box.setPrefWidth(240);
+
+        String borderColor = isPlayer ? "#4169E1" : "#DC143C";
+        String bgColor1 = isPlayer ? "rgba(65, 105, 225, 0.15)" : "rgba(220, 20, 60, 0.15)";
+        String bgColor2 = isPlayer ? "rgba(30, 58, 138, 0.15)" : "rgba(127, 29, 29, 0.15)";
+
+        box.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, " + bgColor1 + ", " + bgColor2 + ");" +
+                        "-fx-border-color: " + borderColor + ";" +
+                        "-fx-border-width: 3;" +
+                        "-fx-border-radius: 15;" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-effect: dropshadow(gaussian, " + borderColor + ", 15, 0.3, 0, 0);"
+        );
+
+        // Character icon with decorative ring
+        StackPane iconPane = new StackPane();
+
+        Circle outerRing = new Circle(45);
+        outerRing.setFill(Color.TRANSPARENT);
+        outerRing.setStroke(Color.web(borderColor));
+        outerRing.setStrokeWidth(2);
+        outerRing.setOpacity(0.5);
+
+        Circle iconCircle = new Circle(36);
+        iconCircle.setFill(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0, Color.web(isPlayer ? "#4169E1" : "#DC143C")),
+                new Stop(0.5, Color.web(isPlayer ? "#2E5CB8" : "#B22222")),
+                new Stop(1, Color.web(isPlayer ? "#1E3A8A" : "#7F1D1D"))
+        ));
+        iconCircle.setEffect(createGlowEffect(Color.web(borderColor), 20, 0.5));
+
+        Label icon = new Label(isPlayer ? "🧙‍♂️" : "🧙‍♀️");
+        icon.setFont(Font.font(44));
+
+        // Floating animation
+        TranslateTransition floatAnim = new TranslateTransition(Duration.seconds(2.5), icon);
+        floatAnim.setByY(-4);
+        floatAnim.setCycleCount(Animation.INDEFINITE);
+        floatAnim.setAutoReverse(true);
+        floatAnim.play();
+
+        iconPane.getChildren().addAll(outerRing, iconCircle, icon);
+
+        String displayName = isPlayer ?
+                playerCustomization.getPlayerName() :
+                enemyCustomization.getEnemyName();
+
+        Label nameLabel = new Label(displayName.toUpperCase());
+        nameLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 16));
+        nameLabel.setTextFill(Color.web("#FFD700"));
+        nameLabel.setWrapText(true);
+        nameLabel.setStyle("-fx-alignment: center;");
+        nameLabel.setMaxWidth(220);
+        nameLabel.setEffect(createGlowEffect(Color.web(borderColor), 10, 0.4));
+
+        VBox hpBox = createStatBar(
+                isPlayer ? playerHpLabel : enemyHpLabel,
+                isPlayer ? playerHpBar : enemyHpBar,
+                "❤️ HP", "#DC143C"
+        );
+
+        VBox mpBox = createStatBar(
+                isPlayer ? playerMpLabel : enemyMpLabel,
+                isPlayer ? playerMpBar : enemyMpBar,
+                "💎 MANA", "#4169E1"
+        );
+
+        box.getChildren().addAll(iconPane, nameLabel, hpBox, mpBox);
+        return box;
+    }
+
+    private VBox createStatBar(Label valueLabel, ProgressBar bar, String name, String color) {
+        VBox statBox = new VBox(5);
+        statBox.setAlignment(Pos.CENTER);
+
+        Label statLabel = new Label(name);
+        statLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 13));
+        statLabel.setTextFill(Color.web("#FFD700"));
+
+        valueLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 16));
+        valueLabel.setTextFill(Color.WHITE);
+
+        bar.setPrefWidth(170);
+        bar.setPrefHeight(18);
+        bar.setStyle(
+                "-fx-accent: " + color + ";" +
+                        "-fx-control-inner-background: rgba(26, 26, 46, 0.8);" +
+                        "-fx-border-color: " + color + ";" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-radius: 5;"
+        );
+
+        HBox labelBox = new HBox(8);
+        labelBox.setAlignment(Pos.CENTER);
+        labelBox.getChildren().addAll(statLabel, valueLabel);
+
+        statBox.getChildren().addAll(labelBox, bar);
+        return statBox;
+    }
+
+    private VBox createCenterSection() {
+        VBox center = new VBox(SPACING_SMALL);
+        center.setPadding(new Insets(PADDING_SMALL, 0, PADDING_SMALL, 0));
+        center.setAlignment(Pos.CENTER);
+
+        Label handLabel = new Label("✨ YOUR SPELLBOOK ✨");
+        handLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 18));
+        handLabel.setTextFill(Color.web("#FFD700"));
+        handLabel.setEffect(createGlowEffect(Color.web("#FFA500"), 15, 0.5));
+
+        // Enhanced hand container
+        handPane.setAlignment(Pos.CENTER);
+        handPane.setPadding(new Insets(PADDING_SMALL));
+        handPane.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, rgba(42, 26, 74, 0.8), rgba(28, 17, 51, 0.8));" +
+                        "-fx-border-color: linear-gradient(to right, #FFD700, #FFA500, #FFD700);" +
+                        "-fx-border-width: 2;" +
+                        "-fx-border-radius: 15;" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.3), 20, 0.2, 0, 0);"
+        );
+
+        center.getChildren().addAll(handLabel, handPane);
+        return center;
+    }
+
+    private VBox createBottomSection() {
+        VBox bottom = new VBox(SPACING_SMALL);
+        bottom.setPadding(new Insets(0, PADDING_SMALL, PADDING_SMALL, PADDING_SMALL));
+
+        Label logLabel = new Label("📜 BATTLE CHRONICLE");
+        logLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 15));
+        logLabel.setTextFill(Color.web("#FFD700"));
+        logLabel.setEffect(createGlowEffect(Color.web("#FFA500"), 10, 0.4));
+
+        logArea.setEditable(false);
+        logArea.setPrefHeight(80);
+        logArea.setWrapText(true);
+        logArea.setStyle(
+                "-fx-control-inner-background: rgba(26, 26, 46, 0.9);" +
+                        "-fx-text-fill: #00FF00;" +
+                        "-fx-font-family: 'Courier New';" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-border-color: linear-gradient(to right, #FFD700, #FFA500, #FFD700);" +
+                        "-fx-border-width: 2;" +
+                        "-fx-border-radius: 10;" +
+                        "-fx-background-radius: 10;"
+        );
+
+        // Enhanced end turn button
+        endTurnBtn.setPrefWidth(240);
+        endTurnBtn.setPrefHeight(45);
+        endTurnBtn.setFont(Font.font("Georgia", FontWeight.BOLD, 16));
+        endTurnBtn.setStyle(createEndTurnButtonStyle());
+
+        endTurnBtn.setOnMouseEntered(e -> {
+            if (!gameEnded) {
+                endTurnBtn.setStyle(
+                        "-fx-background-color: linear-gradient(to bottom, #FF1744, #C62828);" +
+                                "-fx-text-fill: white;" +
+                                "-fx-background-radius: 15;" +
+                                "-fx-border-color: #FFD700;" +
+                                "-fx-border-width: 4;" +
+                                "-fx-border-radius: 15;" +
+                                "-fx-cursor: hand;" +
+                                "-fx-effect: dropshadow(gaussian, rgba(255, 23, 68, 0.7), 20, 0.6, 0, 0);"
+                );
+            }
+        });
+
+        endTurnBtn.setOnMouseExited(e -> {
+            if (!gameEnded) {
+                endTurnBtn.setStyle(createEndTurnButtonStyle());
+            }
+        });
+
+        HBox btnBox = new HBox(endTurnBtn);
+        btnBox.setAlignment(Pos.CENTER);
+
+        bottom.getChildren().addAll(logLabel, logArea, btnBox);
+        return bottom;
+    }
+
+    private void showVictoryScreen() {
+        StackPane root = new StackPane();
+        root.setBackground(createVictoryBackground());
+
+        Pane victoryStars = createVictoryStars();
+
+        VBox victoryBox = new VBox(SPACING_LARGE);
+        victoryBox.setAlignment(Pos.CENTER);
+        victoryBox.setPadding(new Insets(PADDING_LARGE));
+
+        // Victory title
+        VBox titleBox = createTitleSection(
+                "🏆 GLORIOUS VICTORY! 🏆",
+                "You have proven your magical prowess!",
+                40,
+                16
+        );
+
+        // Adjust title glow to green
+        Label title = (Label) titleBox.getChildren().get(0);
+        title.setEffect(createGlowEffect(Color.web("#32CD32"), 40, 1.0));
+
+        // Victory panel
+        VBox victoryPanel = new VBox(SPACING_MEDIUM);
+        victoryPanel.setPadding(new Insets(PADDING_LARGE));
+        victoryPanel.setAlignment(Pos.CENTER);
+        victoryPanel.setMaxWidth(600);
+        victoryPanel.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, rgba(42, 74, 42, 0.9), rgba(28, 51, 28, 0.9));" +
+                        "-fx-border-color: linear-gradient(to right, #FFD700, #32CD32, #FFD700);" +
+                        "-fx-border-width: 4;" +
+                        "-fx-border-radius: 25;" +
+                        "-fx-background-radius: 25;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(50, 205, 50, 0.6), 30, 0.5, 0, 0);"
+        );
+
+        // Winner icon
+        Label winnerIcon = new Label("👑");
+        winnerIcon.setFont(Font.font(75));
+
+        RotateTransition iconRotate = new RotateTransition(Duration.seconds(3), winnerIcon);
+        iconRotate.setByAngle(360);
+        iconRotate.setCycleCount(Animation.INDEFINITE);
+        iconRotate.play();
+
+        // Winner name
+        Label winnerName = new Label(playerCustomization.getPlayerName().toUpperCase());
+        winnerName.setFont(Font.font("Georgia", FontWeight.BOLD, 26));
+        winnerName.setTextFill(Color.web("#FFD700"));
+
+        // Victory message
+        Label victoryMessage = new Label("⚔️ Defeated " + enemyCustomization.getEnemyName() + " ⚔️");
+        victoryMessage.setFont(Font.font("Georgia", FontWeight.BOLD, 18));
+        victoryMessage.setTextFill(Color.web("#90EE90"));
+
+        Rectangle separator = createSeparator();
+
+        // Stats
+        VBox statsBox = new VBox(SPACING_SMALL);
+        statsBox.setAlignment(Pos.CENTER);
+
+        Label hpRemaining = new Label("💚 HP Remaining: " + gc.getPlayer().getHp());
+        hpRemaining.setFont(Font.font("Georgia", FontWeight.BOLD, 15));
+        hpRemaining.setTextFill(Color.WHITE);
+
+        Label mpRemaining = new Label("💎 Mana Remaining: " + gc.getPlayer().getMp());
+        mpRemaining.setFont(Font.font("Georgia", FontWeight.BOLD, 15));
+        mpRemaining.setTextFill(Color.WHITE);
+
+        statsBox.getChildren().addAll(hpRemaining, mpRemaining);
+
+        // Buttons
+        Button playAgainBtn = createActionButton("🔄 CHALLENGE ANOTHER WIZARD", "#32CD32", "#228B22");
+        playAgainBtn.setOnAction(e -> showCustomizationScreen());
+
+        Button returnBtn = createActionButton("🧙‍♂️ RETURN TO CREATION", "#4169E1", "#1E3A8A");
+        returnBtn.setOnAction(e -> showCustomizationScreen());
+
+        victoryPanel.getChildren().addAll(
+                winnerIcon,
+                winnerName,
+                victoryMessage,
+                separator,
+                statsBox,
+                playAgainBtn,
+                returnBtn
+        );
+
+        victoryBox.getChildren().addAll(titleBox, victoryPanel);
+        root.getChildren().addAll(victoryStars, victoryBox);
+
+        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("🏆 VICTORY! 🏆");
+
+        playFadeIn(root);
+    }
+
+    private void showDefeatScreen() {
+        StackPane root = new StackPane();
+        root.setBackground(createDefeatBackground());
+
+        Pane defeatStars = createDefeatStars();
+
+        VBox defeatBox = new VBox(SPACING_LARGE);
+        defeatBox.setAlignment(Pos.CENTER);
+        defeatBox.setPadding(new Insets(PADDING_LARGE));
+
+        // Defeat title
+        VBox titleBox = createTitleSection(
+                "💀 DEFEAT 💀",
+                "Your magical journey ends here...",
+                40,
+                16
+        );
+
+        // Adjust title glow to red
+        Label title = (Label) titleBox.getChildren().get(0);
+        title.setTextFill(Color.web("#DC143C"));
+        title.setEffect(createGlowEffect(Color.web("#8B0000"), 40, 1.0));
+
+        Label subtitle = (Label) titleBox.getChildren().get(1);
+        subtitle.setTextFill(Color.web("#FF6B6B"));
+
+        // Defeat panel
+        VBox defeatPanel = new VBox(SPACING_MEDIUM);
+        defeatPanel.setPadding(new Insets(PADDING_LARGE));
+        defeatPanel.setAlignment(Pos.CENTER);
+        defeatPanel.setMaxWidth(600);
+        defeatPanel.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, rgba(74, 42, 42, 0.9), rgba(51, 28, 28, 0.9));" +
+                        "-fx-border-color: linear-gradient(to right, #DC143C, #8B0000, #DC143C);" +
+                        "-fx-border-width: 4;" +
+                        "-fx-border-radius: 25;" +
+                        "-fx-background-radius: 25;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(220, 20, 60, 0.6), 30, 0.5, 0, 0);"
+        );
+
+        // Defeat icon
+        Label defeatIcon = new Label("⚰️");
+        defeatIcon.setFont(Font.font(75));
+
+        TranslateTransition iconFloat = new TranslateTransition(Duration.seconds(2), defeatIcon);
+        iconFloat.setByY(-8);
+        iconFloat.setCycleCount(Animation.INDEFINITE);
+        iconFloat.setAutoReverse(true);
+        iconFloat.play();
+
+        // Defeated name
+        Label defeatedName = new Label(playerCustomization.getPlayerName().toUpperCase());
+        defeatedName.setFont(Font.font("Georgia", FontWeight.BOLD, 26));
+        defeatedName.setTextFill(Color.web("#DC143C"));
+
+        // Defeat message
+        Label defeatMessage = new Label("⚔️ Vanquished by " + enemyCustomization.getEnemyName() + " ⚔️");
+        defeatMessage.setFont(Font.font("Georgia", FontWeight.BOLD, 18));
+        defeatMessage.setTextFill(Color.web("#FF6B6B"));
+
+        Rectangle separator = createSeparator();
+
+        // Motivational quote
+        Label quote = new Label("\"Even the greatest wizards must fall before they can rise again\"");
+        quote.setFont(Font.font("Georgia", FontPosture.ITALIC, 15));
+        quote.setTextFill(Color.web("#FFD700"));
+        quote.setWrapText(true);
+        quote.setStyle("-fx-alignment: center;");
+        quote.setMaxWidth(500);
+
+        // Buttons
+        Button tryAgainBtn = createActionButton("⚔️ SEEK REDEMPTION", "#DC143C", "#8B0000");
+        tryAgainBtn.setOnAction(e -> showCustomizationScreen());
+
+        Button returnBtn = createActionButton("🧙‍♂️ RETURN TO CREATION", "#4A4A4A", "#2F2F2F");
+        returnBtn.setOnAction(e -> showCustomizationScreen());
+
+        defeatPanel.getChildren().addAll(
+                defeatIcon,
+                defeatedName,
+                defeatMessage,
+                separator,
+                quote,
+                tryAgainBtn,
+                returnBtn
+        );
+
+        defeatBox.getChildren().addAll(titleBox, defeatPanel);
+        root.getChildren().addAll(defeatStars, defeatBox);
+
+        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("💀 Defeat 💀");
+
+        playFadeIn(root);
+    }
+
+    // ========== HELPER METHODS ==========
+
+    private Background createDeepPurpleBackground() {
+        return new Background(new BackgroundFill(
+                new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                        new Stop(0, Color.web("#0a0612")),
+                        new Stop(0.3, Color.web("#1a0f2e")),
+                        new Stop(0.6, Color.web("#2d1b4e")),
+                        new Stop(1, Color.web("#1e0f3d"))
+                ),
+                CornerRadii.EMPTY,
+                Insets.EMPTY
+        ));
+    }
+
+    private Background createVictoryBackground() {
+        return new Background(new BackgroundFill(
+                new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                        new Stop(0, Color.web("#0a1e0a")),
+                        new Stop(0.3, Color.web("#1a4d1a")),
+                        new Stop(0.6, Color.web("#2d6e2d")),
+                        new Stop(1, Color.web("#1e3d1e"))
+                ),
+                CornerRadii.EMPTY,
+                Insets.EMPTY
+        ));
+    }
+
+    private Background createDefeatBackground() {
+        return new Background(new BackgroundFill(
+                new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                        new Stop(0, Color.web("#1e0a0a")),
+                        new Stop(0.3, Color.web("#4d1a1a")),
+                        new Stop(0.6, Color.web("#6e2d2d")),
+                        new Stop(1, Color.web("#3d1e1e"))
+                ),
+                CornerRadii.EMPTY,
+                Insets.EMPTY
+        ));
+    }
+
+    private String createPanelStyle() {
+        return "-fx-background-color: linear-gradient(to bottom, rgba(42, 26, 74, 0.9), rgba(28, 17, 51, 0.9));" +
+                "-fx-border-color: linear-gradient(to right, #FFD700, #FFA500, #FFD700);" +
+                "-fx-border-width: 3;" +
+                "-fx-border-radius: 20;" +
+                "-fx-background-radius: 20;" +
+                "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.4), 25, 0.3, 0, 0);";
+    }
+
+    private String createEndTurnButtonStyle() {
+        return "-fx-background-color: linear-gradient(to bottom, #DC143C, #8B0000);" +
+                "-fx-text-fill: white;" +
+                "-fx-background-radius: 15;" +
+                "-fx-border-color: #FFD700;" +
+                "-fx-border-width: 3;" +
+                "-fx-border-radius: 15;" +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(220, 20, 60, 0.5), 15, 0.4, 0, 0);";
+    }
+
+    private DropShadow createGlowEffect(Color color, double radius, double spread) {
+        DropShadow glow = new DropShadow();
+        glow.setColor(color);
+        glow.setRadius(radius);
+        glow.setSpread(spread);
+        return glow;
+    }
+
+    private VBox createTitleSection(String mainText, String subText, int mainSize, int subSize) {
+        VBox titleBox = new VBox(5);
+        titleBox.setAlignment(Pos.CENTER);
+
+        Label title = new Label(mainText);
+        title.setFont(Font.font("Georgia", FontWeight.BOLD, mainSize));
+        title.setTextFill(Color.web("#FFD700"));
+        title.setEffect(createGlowEffect(Color.web("#FFA500"), 25, 0.8));
+
+        // Pulsing animation
+        ScaleTransition pulse = new ScaleTransition(Duration.seconds(2), title);
+        pulse.setFromX(1.0);
+        pulse.setFromY(1.0);
+        pulse.setToX(1.05);
+        pulse.setToY(1.05);
+        pulse.setCycleCount(Animation.INDEFINITE);
+        pulse.setAutoReverse(true);
+        pulse.play();
+
+        Label subtitle = new Label(subText);
+        subtitle.setFont(Font.font("Georgia", FontPosture.ITALIC, subSize));
+        subtitle.setTextFill(Color.web("#C4A47C"));
+        subtitle.setOpacity(0.8);
+
+        // Subtitle fade
+        FadeTransition subtitleFade = new FadeTransition(Duration.seconds(3), subtitle);
+        subtitleFade.setFromValue(0.6);
+        subtitleFade.setToValue(1.0);
+        subtitleFade.setCycleCount(Animation.INDEFINITE);
+        subtitleFade.setAutoReverse(true);
+        subtitleFade.play();
+
+        titleBox.getChildren().addAll(title, subtitle);
+        return titleBox;
+    }
+
+    private VBox createPreviewSection() {
+        VBox previewSection = new VBox(SPACING_SMALL);
+        previewSection.setAlignment(Pos.CENTER);
+
+        Label previewLabel = new Label("⚡ YOUR WIZARD ⚡");
+        previewLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 14));
+        previewLabel.setTextFill(Color.web("#FFD700"));
+
+        StackPane previewPane = new StackPane();
+        previewPane.setPrefSize(110, 110);
+
+        // Outer decorative ring
+        Circle outerRing = new Circle(50);
+        outerRing.setFill(Color.TRANSPARENT);
+        outerRing.setStroke(Color.web("#FFD700"));
+        outerRing.setStrokeWidth(2);
+        outerRing.setOpacity(0.5);
+
+        // Rotating animation
+        RotateTransition ringRotate = new RotateTransition(Duration.seconds(8), outerRing);
+        ringRotate.setByAngle(360);
+        ringRotate.setCycleCount(Animation.INDEFINITE);
+        ringRotate.play();
+
+        // Inner preview circle
+        previewCircle = new Circle(38);
+        previewCircle.setFill(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0, Color.web("#4169E1")),
+                new Stop(0.5, Color.web("#2E5CB8")),
+                new Stop(1, Color.web("#1E3A8A"))
+        ));
+        previewCircle.setEffect(createGlowEffect(Color.web("#4169E1"), 20, 0.5));
+
+        previewIcon = new Label("🧙‍♂️");
+        previewIcon.setFont(Font.font(48));
+
+        // Floating animation
+        TranslateTransition float1 = new TranslateTransition(Duration.seconds(2), previewIcon);
+        float1.setByY(-5);
+        float1.setCycleCount(Animation.INDEFINITE);
+        float1.setAutoReverse(true);
+        float1.play();
+
+        previewPane.getChildren().addAll(outerRing, previewCircle, previewIcon);
+        previewSection.getChildren().addAll(previewLabel, previewPane);
+        return previewSection;
     }
 
     private Rectangle createSeparator() {
-        Rectangle separator = new Rectangle(400, 2);
+        Rectangle separator = new Rectangle(340, 2);
         separator.setFill(new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE,
                 new Stop(0, Color.TRANSPARENT),
                 new Stop(0.5, Color.web("#FFD700", 0.5)),
@@ -450,47 +856,108 @@ public class GameUI extends Application {
         return separator;
     }
 
-    private void updatePreviewAnimation() {
-        ScaleTransition scale = new ScaleTransition(Duration.millis(200), previewIcon);
-        scale.setFromX(1.0);
-        scale.setFromY(1.0);
-        scale.setToX(1.2);
-        scale.setToY(1.2);
-        scale.setAutoReverse(true);
-        scale.setCycleCount(2);
-        scale.play();
+    private Button createEnhancedButton(String text, double width, double height) {
+        Button btn = new Button(text);
+        btn.setPrefWidth(width);
+        btn.setPrefHeight(height);
+        btn.setFont(Font.font("Georgia", FontWeight.BOLD, 17));
+        btn.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #FFD700, #FFA500, #FF8C00);" +
+                        "-fx-text-fill: #1a0f2e;" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-border-color: white;" +
+                        "-fx-border-width: 3;" +
+                        "-fx-border-radius: 15;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.6), 15, 0.5, 0, 0);"
+        );
+
+        // Pulsing effect
+        ScaleTransition btnPulse = new ScaleTransition(Duration.seconds(1.5), btn);
+        btnPulse.setFromX(1.0);
+        btnPulse.setFromY(1.0);
+        btnPulse.setToX(1.03);
+        btnPulse.setToY(1.03);
+        btnPulse.setCycleCount(Animation.INDEFINITE);
+        btnPulse.setAutoReverse(true);
+        btnPulse.play();
+
+        btn.setOnMouseEntered(e -> {
+            btn.setStyle(
+                    "-fx-background-color: linear-gradient(to bottom, #FFE55C, #FFB84D, #FFA500);" +
+                            "-fx-text-fill: #1a0f2e;" +
+                            "-fx-background-radius: 15;" +
+                            "-fx-border-color: white;" +
+                            "-fx-border-width: 4;" +
+                            "-fx-border-radius: 15;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.9), 25, 0.7, 0, 0);"
+            );
+        });
+
+        btn.setOnMouseExited(e -> {
+            btn.setStyle(
+                    "-fx-background-color: linear-gradient(to bottom, #FFD700, #FFA500, #FF8C00);" +
+                            "-fx-text-fill: #1a0f2e;" +
+                            "-fx-background-radius: 15;" +
+                            "-fx-border-color: white;" +
+                            "-fx-border-width: 3;" +
+                            "-fx-border-radius: 15;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.6), 15, 0.5, 0, 0);"
+            );
+        });
+
+        return btn;
     }
 
-    private void updatePreviewColor(String robe) {
-        String color1, color2, color3;
+    private Button createActionButton(String text, String color1, String color2) {
+        Button btn = new Button(text);
+        btn.setPrefWidth(300);
+        btn.setPrefHeight(46);
+        btn.setFont(Font.font("Georgia", FontWeight.BOLD, 16));
+        btn.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, " + color1 + ", " + color2 + ");" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-border-color: #FFD700;" +
+                        "-fx-border-width: 3;" +
+                        "-fx-border-radius: 15;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-effect: dropshadow(gaussian, " + color1 + ", 15, 0.5, 0, 0);"
+        );
 
-        if (robe.contains("Blue")) {
-            color1 = "#4169E1"; color2 = "#2E5CB8"; color3 = "#1E3A8A";
-        } else if (robe.contains("Red")) {
-            color1 = "#DC143C"; color2 = "#B22222"; color3 = "#8B0000";
-        } else if (robe.contains("Purple")) {
-            color1 = "#9370DB"; color2 = "#7B68EE"; color3 = "#6A5ACD";
-        } else if (robe.contains("Green")) {
-            color1 = "#32CD32"; color2 = "#228B22"; color3 = "#006400";
-        } else if (robe.contains("Black")) {
-            color1 = "#4A4A4A"; color2 = "#2F2F2F"; color3 = "#1A1A1A";
-        } else {
-            color1 = "#F0F0F0"; color2 = "#D3D3D3"; color3 = "#A9A9A9";
-        }
+        btn.setOnMouseEntered(e -> {
+            btn.setStyle(
+                    "-fx-background-color: linear-gradient(to bottom, " + color1 + ", " + color2 + ");" +
+                            "-fx-text-fill: white;" +
+                            "-fx-background-radius: 15;" +
+                            "-fx-border-color: #FFD700;" +
+                            "-fx-border-width: 4;" +
+                            "-fx-border-radius: 15;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-effect: dropshadow(gaussian, " + color1 + ", 25, 0.7, 0, 0);"
+            );
+            btn.setScaleX(1.05);
+            btn.setScaleY(1.05);
+        });
 
-        previewCircle.setFill(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                new Stop(0, Color.web(color1)),
-                new Stop(0.5, Color.web(color2)),
-                new Stop(1, Color.web(color3))
-        ));
+        btn.setOnMouseExited(e -> {
+            btn.setStyle(
+                    "-fx-background-color: linear-gradient(to bottom, " + color1 + ", " + color2 + ");" +
+                            "-fx-text-fill: white;" +
+                            "-fx-background-radius: 15;" +
+                            "-fx-border-color: #FFD700;" +
+                            "-fx-border-width: 3;" +
+                            "-fx-border-radius: 15;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-effect: dropshadow(gaussian, " + color1 + ", 15, 0.5, 0, 0);"
+            );
+            btn.setScaleX(1.0);
+            btn.setScaleY(1.0);
+        });
 
-        DropShadow circleGlow = new DropShadow();
-        circleGlow.setColor(Color.web(color1));
-        circleGlow.setRadius(20);
-        circleGlow.setSpread(0.5);
-        previewCircle.setEffect(circleGlow);
-
-        updatePreviewAnimation();
+        return btn;
     }
 
     private VBox createEnhancedInputBox(String labelText, String placeholder) {
@@ -498,14 +965,14 @@ public class GameUI extends Application {
         box.setAlignment(Pos.CENTER);
 
         Label label = new Label(labelText);
-        label.setFont(Font.font("Georgia", FontWeight.BOLD, 15));
+        label.setFont(Font.font("Georgia", FontWeight.BOLD, 14));
         label.setTextFill(Color.web("#FFD700"));
 
         TextField field = new TextField();
         field.setPromptText(placeholder);
-        field.setPrefWidth(400);
-        field.setPrefHeight(40);
-        field.setFont(Font.font("Georgia", 14));
+        field.setPrefWidth(340);
+        field.setPrefHeight(36);
+        field.setFont(Font.font("Georgia", 13));
         field.setStyle(
                 "-fx-background-color: rgba(26, 26, 46, 0.95);" +
                         "-fx-text-fill: white;" +
@@ -556,18 +1023,18 @@ public class GameUI extends Application {
         box.setAlignment(Pos.CENTER);
 
         Label label = new Label(labelText);
-        label.setFont(Font.font("Georgia", FontWeight.BOLD, 14));
+        label.setFont(Font.font("Georgia", FontWeight.BOLD, 13));
         label.setTextFill(Color.web("#FFD700"));
 
         ComboBox<String> combo = new ComboBox<>();
         combo.getItems().addAll(items);
         combo.setValue(items[0]);
-        combo.setPrefWidth(240);
-        combo.setPrefHeight(38);
+        combo.setPrefWidth(200);
+        combo.setPrefHeight(34);
         combo.setStyle(
                 "-fx-background-color: rgba(26, 26, 46, 0.95);" +
                         "-fx-font-family: Georgia;" +
-                        "-fx-font-size: 13px;" +
+                        "-fx-font-size: 12px;" +
                         "-fx-border-color: #FFD700;" +
                         "-fx-border-width: 2;" +
                         "-fx-border-radius: 10;" +
@@ -579,6 +1046,149 @@ public class GameUI extends Application {
 
         box.getChildren().addAll(label, comboBox);
         return box;
+    }
+
+    private void updatePreviewAnimation() {
+        ScaleTransition scale = new ScaleTransition(Duration.millis(200), previewIcon);
+        scale.setFromX(1.0);
+        scale.setFromY(1.0);
+        scale.setToX(1.2);
+        scale.setToY(1.2);
+        scale.setAutoReverse(true);
+        scale.setCycleCount(2);
+        scale.play();
+    }
+
+    private void updatePreviewColor(String robe) {
+        String color1, color2, color3;
+
+        if (robe.contains("Blue")) {
+            color1 = "#4169E1";
+            color2 = "#2E5CB8";
+            color3 = "#1E3A8A";
+        } else if (robe.contains("Red")) {
+            color1 = "#DC143C";
+            color2 = "#B22222";
+            color3 = "#8B0000";
+        } else if (robe.contains("Purple")) {
+            color1 = "#9370DB";
+            color2 = "#7B68EE";
+            color3 = "#6A5ACD";
+        } else if (robe.contains("Green")) {
+            color1 = "#32CD32";
+            color2 = "#228B22";
+            color3 = "#006400";
+        } else if (robe.contains("Black")) {
+            color1 = "#4A4A4A";
+            color2 = "#2F2F2F";
+            color3 = "#1A1A1A";
+        } else {
+            color1 = "#F0F0F0";
+            color2 = "#D3D3D3";
+            color3 = "#A9A9A9";
+        }
+
+        previewCircle.setFill(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0, Color.web(color1)),
+                new Stop(0.5, Color.web(color2)),
+                new Stop(1, Color.web(color3))
+        ));
+
+        previewCircle.setEffect(createGlowEffect(Color.web(color1), 20, 0.5));
+        updatePreviewAnimation();
+    }
+
+    private Pane createStarsEffect() {
+        Pane starsPane = new Pane();
+        starsPane.setMouseTransparent(true);
+
+        for (int i = 0; i < 50; i++) {
+            Circle star = new Circle(1 + Math.random() * 2);
+            star.setFill(Color.WHITE);
+            star.setOpacity(0.3 + Math.random() * 0.7);
+
+            // Bind star position to pane size for dynamic scaling
+            star.centerXProperty().bind(starsPane.widthProperty().multiply(Math.random()));
+            star.centerYProperty().bind(starsPane.heightProperty().multiply(Math.random()));
+
+            // Twinkling animation
+            FadeTransition twinkle = new FadeTransition(
+                    Duration.seconds(1 + Math.random() * 3),
+                    star
+            );
+            twinkle.setFromValue(0.2);
+            twinkle.setToValue(1.0);
+            twinkle.setCycleCount(Animation.INDEFINITE);
+            twinkle.setAutoReverse(true);
+            twinkle.setDelay(Duration.seconds(Math.random() * 2));
+            twinkle.play();
+
+            starsPane.getChildren().add(star);
+        }
+
+        return starsPane;
+    }
+
+    private Pane createVictoryStars() {
+        Pane starsPane = new Pane();
+        starsPane.setMouseTransparent(true);
+
+        for (int i = 0; i < 50; i++) {
+            Circle star = new Circle(1 + Math.random() * 2);
+            star.setFill(Color.web("#FFD700"));
+            star.setOpacity(0.3 + Math.random() * 0.7);
+
+            // Bind star position to pane size for dynamic scaling
+            star.centerXProperty().bind(starsPane.widthProperty().multiply(Math.random()));
+            star.centerYProperty().bind(starsPane.heightProperty().multiply(Math.random()));
+
+            // Twinkling animation
+            FadeTransition twinkle = new FadeTransition(
+                    Duration.seconds(1 + Math.random() * 3),
+                    star
+            );
+            twinkle.setFromValue(0.2);
+            twinkle.setToValue(1.0);
+            twinkle.setCycleCount(Animation.INDEFINITE);
+            twinkle.setAutoReverse(true);
+            twinkle.setDelay(Duration.seconds(Math.random() * 2));
+            twinkle.play();
+
+            starsPane.getChildren().add(star);
+        }
+
+        return starsPane;
+    }
+
+    private Pane createDefeatStars() {
+        Pane starsPane = new Pane();
+        starsPane.setMouseTransparent(true);
+
+        for (int i = 0; i < 50; i++) {
+            Circle star = new Circle(1 + Math.random() * 2);
+            star.setFill(Color.web("#DC143C"));
+            star.setOpacity(0.3 + Math.random() * 0.7);
+
+            // Bind star position to pane size for dynamic scaling
+            star.centerXProperty().bind(starsPane.widthProperty().multiply(Math.random()));
+            star.centerYProperty().bind(starsPane.heightProperty().multiply(Math.random()));
+
+            // Twinkling animation
+            FadeTransition twinkle = new FadeTransition(
+                    Duration.seconds(1 + Math.random() * 3),
+                    star
+            );
+            twinkle.setFromValue(0.2);
+            twinkle.setToValue(1.0);
+            twinkle.setCycleCount(Animation.INDEFINITE);
+            twinkle.setAutoReverse(true);
+            twinkle.setDelay(Duration.seconds(Math.random() * 2));
+            twinkle.play();
+
+            starsPane.getChildren().add(star);
+        }
+
+        return starsPane;
     }
 
     private String parseFace(String value) {
@@ -611,384 +1221,7 @@ public class GameUI extends Application {
         return "gold_staff";
     }
 
-    private void startBattle() {
-        gameEnded = false; // Reset game state
-
-        StackPane root = new StackPane();
-
-        // Same deep gradient as customization screen
-        BackgroundFill bgFill = new BackgroundFill(
-                new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                        new Stop(0, Color.web("#0a0612")),
-                        new Stop(0.3, Color.web("#1a0f2e")),
-                        new Stop(0.6, Color.web("#2d1b4e")),
-                        new Stop(1, Color.web("#1e0f3d"))
-                ),
-                CornerRadii.EMPTY,
-                Insets.EMPTY
-        );
-        root.setBackground(new Background(bgFill));
-
-        // Stars for battle screen too!
-        starsPane = createStarsEffect();
-
-        BorderPane mainLayout = new BorderPane();
-        mainLayout.setPadding(new Insets(20));
-
-        animationPane = new Pane();
-        animationPane.setMouseTransparent(true);
-
-        VBox topSection = createTopSection();
-        VBox centerSection = createCenterSection();
-        VBox bottomSection = createBottomSection();
-
-        mainLayout.setTop(topSection);
-        mainLayout.setCenter(centerSection);
-        mainLayout.setBottom(bottomSection);
-
-        root.getChildren().addAll(starsPane, mainLayout, animationPane);
-
-        endTurnBtn.setOnAction(e -> {
-            if (!gameEnded) {
-                gc.endTurn();
-                playTurnTransitionAnimation();
-            }
-        });
-
-        Scene scene = new Scene(root, 900, 750);
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("⚔️ " + playerCustomization.getPlayerName() + " vs " + enemyCustomization.getEnemyName() + " ⚔️");
-
-        gc.setUI(this);
-
-        Player customPlayer = new Player(playerCustomization);
-        Enemy customEnemy = new Enemy(enemyCustomization);
-        gc.startGameWithCustomizations(customPlayer, customEnemy);
-        refreshUI();
-
-        playOpeningAnimation(root);
-    }
-
-    private VBox createTopSection() {
-        VBox top = new VBox(15);
-        top.setAlignment(Pos.CENTER);
-
-        // Title with subtitle (cohesive with customization)
-        VBox titleBox = new VBox(5);
-        titleBox.setAlignment(Pos.CENTER);
-
-        Label title = new Label("⚔️ ARENA OF MYSTIC COMBAT ⚔️");
-        title.setFont(Font.font("Georgia", FontWeight.BOLD, 36));
-        title.setTextFill(Color.web("#FFD700"));
-
-        DropShadow titleGlow = new DropShadow();
-        titleGlow.setColor(Color.web("#FFA500"));
-        titleGlow.setRadius(25);
-        titleGlow.setSpread(0.8);
-        title.setEffect(titleGlow);
-
-        Label subtitle = new Label("Battle for Magical Supremacy");
-        subtitle.setFont(Font.font("Georgia", FontPosture.ITALIC, 14));
-        subtitle.setTextFill(Color.web("#C4A47C"));
-        subtitle.setOpacity(0.7);
-
-        // Pulsing animation for title
-        ScaleTransition pulse = new ScaleTransition(Duration.seconds(2), title);
-        pulse.setFromX(1.0);
-        pulse.setFromY(1.0);
-        pulse.setToX(1.05);
-        pulse.setToY(1.05);
-        pulse.setCycleCount(Animation.INDEFINITE);
-        pulse.setAutoReverse(true);
-        pulse.play();
-
-        // Subtitle fade
-        FadeTransition subtitleFade = new FadeTransition(Duration.seconds(3), subtitle);
-        subtitleFade.setFromValue(0.5);
-        subtitleFade.setToValue(0.9);
-        subtitleFade.setCycleCount(Animation.INDEFINITE);
-        subtitleFade.setAutoReverse(true);
-        subtitleFade.play();
-
-        titleBox.getChildren().addAll(title, subtitle);
-
-        // Battle arena with enhanced styling
-        HBox arena = createBattleArena();
-
-        top.getChildren().addAll(titleBox, arena);
-        return top;
-    }
-
-    private HBox createBattleArena() {
-        HBox arena = new HBox(40);
-        arena.setAlignment(Pos.CENTER);
-        arena.setPadding(new Insets(20));
-
-        // Enhanced styling matching customization panel
-        arena.setStyle(
-                "-fx-background-color: linear-gradient(to bottom, rgba(42, 26, 74, 0.9), rgba(28, 17, 51, 0.9));" +
-                        "-fx-border-color: linear-gradient(to right, #FFD700, #FFA500, #FFD700);" +
-                        "-fx-border-width: 3;" +
-                        "-fx-border-radius: 20;" +
-                        "-fx-background-radius: 20;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.4), 25, 0.3, 0, 0);"
-        );
-
-        VBox playerBox = createCharacterBox(true);
-
-        // Enhanced VS section
-        VBox vsBox = new VBox(8);
-        vsBox.setAlignment(Pos.CENTER);
-
-        Label vsLabel = new Label("⚔️\nVS\n⚔️");
-        vsLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 32));
-        vsLabel.setTextFill(Color.web("#FFD700"));
-        vsLabel.setStyle("-fx-alignment: center;");
-
-        DropShadow vsGlow = new DropShadow();
-        vsGlow.setColor(Color.web("#FFA500"));
-        vsGlow.setRadius(15);
-        vsGlow.setSpread(0.6);
-        vsLabel.setEffect(vsGlow);
-
-        // Rotating animation for VS
-        RotateTransition rotate = new RotateTransition(Duration.seconds(4), vsLabel);
-        rotate.setByAngle(360);
-        rotate.setCycleCount(Animation.INDEFINITE);
-        rotate.play();
-
-        vsBox.getChildren().add(vsLabel);
-
-        VBox enemyBox = createCharacterBox(false);
-
-        arena.getChildren().addAll(playerBox, vsBox, enemyBox);
-        return arena;
-    }
-
-    private VBox createCharacterBox(boolean isPlayer) {
-        VBox box = new VBox(12);
-        box.setAlignment(Pos.CENTER);
-        box.setPadding(new Insets(25));
-        box.setPrefWidth(270);
-
-        String borderColor = isPlayer ? "#4169E1" : "#DC143C";
-        String bgColor1 = isPlayer ? "rgba(65, 105, 225, 0.15)" : "rgba(220, 20, 60, 0.15)";
-        String bgColor2 = isPlayer ? "rgba(30, 58, 138, 0.15)" : "rgba(127, 29, 29, 0.15)";
-
-        box.setStyle(
-                "-fx-background-color: linear-gradient(to bottom, " + bgColor1 + ", " + bgColor2 + ");" +
-                        "-fx-border-color: " + borderColor + ";" +
-                        "-fx-border-width: 3;" +
-                        "-fx-border-radius: 15;" +
-                        "-fx-background-radius: 15;" +
-                        "-fx-effect: dropshadow(gaussian, " + borderColor + ", 15, 0.3, 0, 0);"
-        );
-
-        // Character icon with decorative ring (like preview)
-        StackPane iconPane = new StackPane();
-
-        Circle outerRing = new Circle(55);
-        outerRing.setFill(Color.TRANSPARENT);
-        outerRing.setStroke(Color.web(borderColor));
-        outerRing.setStrokeWidth(2);
-        outerRing.setOpacity(0.5);
-
-        Circle iconCircle = new Circle(45);
-        iconCircle.setFill(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                new Stop(0, Color.web(isPlayer ? "#4169E1" : "#DC143C")),
-                new Stop(0.5, Color.web(isPlayer ? "#2E5CB8" : "#B22222")),
-                new Stop(1, Color.web(isPlayer ? "#1E3A8A" : "#7F1D1D"))
-        ));
-
-        DropShadow iconGlow = new DropShadow();
-        iconGlow.setColor(Color.web(borderColor));
-        iconGlow.setRadius(20);
-        iconGlow.setSpread(0.5);
-        iconCircle.setEffect(iconGlow);
-
-        Label icon = new Label(isPlayer ? "🧙‍♂️" : "🧙‍♀️");
-        icon.setFont(Font.font(55));
-
-        // Floating animation
-        TranslateTransition floatAnim = new TranslateTransition(Duration.seconds(2.5), icon);
-        floatAnim.setByY(-4);
-        floatAnim.setCycleCount(Animation.INDEFINITE);
-        floatAnim.setAutoReverse(true);
-        floatAnim.play();
-
-        iconPane.getChildren().addAll(outerRing, iconCircle, icon);
-
-        String displayName = isPlayer ?
-                playerCustomization.getPlayerName() :
-                enemyCustomization.getEnemyName();
-
-        Label nameLabel = new Label(displayName.toUpperCase());
-        nameLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 17));
-        nameLabel.setTextFill(Color.web("#FFD700"));
-        nameLabel.setWrapText(true);
-        nameLabel.setStyle("-fx-alignment: center;");
-        nameLabel.setMaxWidth(230);
-
-        DropShadow nameGlow = new DropShadow();
-        nameGlow.setColor(Color.web(borderColor));
-        nameGlow.setRadius(10);
-        nameGlow.setSpread(0.4);
-        nameLabel.setEffect(nameGlow);
-
-        VBox hpBox = createStatBar(
-                isPlayer ? playerHpLabel : enemyHpLabel,
-                isPlayer ? playerHpBar : enemyHpBar,
-                "❤️ HP", "#DC143C"
-        );
-
-        VBox mpBox = createStatBar(
-                isPlayer ? playerMpLabel : enemyMpLabel,
-                isPlayer ? playerMpBar : enemyMpBar,
-                "💎 MANA", "#4169E1"
-        );
-
-        box.getChildren().addAll(iconPane, nameLabel, hpBox, mpBox);
-        return box;
-    }
-
-    private VBox createStatBar(Label valueLabel, ProgressBar bar, String name, String color) {
-        VBox statBox = new VBox(6);
-        statBox.setAlignment(Pos.CENTER);
-
-        Label statLabel = new Label(name);
-        statLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 14));
-        statLabel.setTextFill(Color.web("#FFD700"));
-
-        valueLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 18));
-        valueLabel.setTextFill(Color.WHITE);
-
-        bar.setPrefWidth(200);
-        bar.setPrefHeight(22);
-        bar.setStyle(
-                "-fx-accent: " + color + ";" +
-                        "-fx-control-inner-background: rgba(26, 26, 46, 0.8);" +
-                        "-fx-border-color: " + color + ";" +
-                        "-fx-border-width: 1;" +
-                        "-fx-border-radius: 5;"
-        );
-
-        HBox labelBox = new HBox(10);
-        labelBox.setAlignment(Pos.CENTER);
-        labelBox.getChildren().addAll(statLabel, valueLabel);
-
-        statBox.getChildren().addAll(labelBox, bar);
-        return statBox;
-    }
-
-    private VBox createCenterSection() {
-        VBox center = new VBox(12);
-        center.setPadding(new Insets(20, 0, 20, 0));
-        center.setAlignment(Pos.CENTER);
-
-        Label handLabel = new Label("✨ YOUR SPELLBOOK ✨");
-        handLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 20));
-        handLabel.setTextFill(Color.web("#FFD700"));
-
-        DropShadow handGlow = new DropShadow();
-        handGlow.setColor(Color.web("#FFA500"));
-        handGlow.setRadius(15);
-        handGlow.setSpread(0.5);
-        handLabel.setEffect(handGlow);
-
-        // Enhanced hand container
-        handPane.setAlignment(Pos.CENTER);
-        handPane.setPadding(new Insets(15));
-        handPane.setStyle(
-                "-fx-background-color: linear-gradient(to bottom, rgba(42, 26, 74, 0.8), rgba(28, 17, 51, 0.8));" +
-                        "-fx-border-color: linear-gradient(to right, #FFD700, #FFA500, #FFD700);" +
-                        "-fx-border-width: 2;" +
-                        "-fx-border-radius: 15;" +
-                        "-fx-background-radius: 15;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.3), 20, 0.2, 0, 0);"
-        );
-
-        center.getChildren().addAll(handLabel, handPane);
-        return center;
-    }
-
-    private VBox createBottomSection() {
-        VBox bottom = new VBox(12);
-
-        Label logLabel = new Label("📜 BATTLE CHRONICLE");
-        logLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 16));
-        logLabel.setTextFill(Color.web("#FFD700"));
-
-        DropShadow logGlow = new DropShadow();
-        logGlow.setColor(Color.web("#FFA500"));
-        logGlow.setRadius(10);
-        logGlow.setSpread(0.4);
-        logLabel.setEffect(logGlow);
-
-        logArea.setEditable(false);
-        logArea.setPrefHeight(100);
-        logArea.setWrapText(true);
-        logArea.setStyle(
-                "-fx-control-inner-background: rgba(26, 26, 46, 0.9);" +
-                        "-fx-text-fill: #00FF00;" +
-                        "-fx-font-family: 'Courier New';" +
-                        "-fx-font-size: 12px;" +
-                        "-fx-border-color: linear-gradient(to right, #FFD700, #FFA500, #FFD700);" +
-                        "-fx-border-width: 2;" +
-                        "-fx-border-radius: 10;" +
-                        "-fx-background-radius: 10;"
-        );
-
-        // Enhanced end turn button
-        endTurnBtn.setPrefWidth(280);
-        endTurnBtn.setPrefHeight(52);
-        endTurnBtn.setFont(Font.font("Georgia", FontWeight.BOLD, 18));
-        endTurnBtn.setStyle(
-                "-fx-background-color: linear-gradient(to bottom, #DC143C, #8B0000);" +
-                        "-fx-text-fill: white;" +
-                        "-fx-background-radius: 15;" +
-                        "-fx-border-color: #FFD700;" +
-                        "-fx-border-width: 3;" +
-                        "-fx-border-radius: 15;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(220, 20, 60, 0.5), 15, 0.4, 0, 0);"
-        );
-
-        endTurnBtn.setOnMouseEntered(e -> {
-            if (!gameEnded) {
-                endTurnBtn.setStyle(
-                        "-fx-background-color: linear-gradient(to bottom, #FF1744, #C62828);" +
-                                "-fx-text-fill: white;" +
-                                "-fx-background-radius: 15;" +
-                                "-fx-border-color: #FFD700;" +
-                                "-fx-border-width: 4;" +
-                                "-fx-border-radius: 15;" +
-                                "-fx-cursor: hand;" +
-                                "-fx-effect: dropshadow(gaussian, rgba(255, 23, 68, 0.7), 20, 0.6, 0, 0);"
-                );
-            }
-        });
-
-        endTurnBtn.setOnMouseExited(e -> {
-            if (!gameEnded) {
-                endTurnBtn.setStyle(
-                        "-fx-background-color: linear-gradient(to bottom, #DC143C, #8B0000);" +
-                                "-fx-text-fill: white;" +
-                                "-fx-background-radius: 15;" +
-                                "-fx-border-color: #FFD700;" +
-                                "-fx-border-width: 3;" +
-                                "-fx-border-radius: 15;" +
-                                "-fx-cursor: hand;" +
-                                "-fx-effect: dropshadow(gaussian, rgba(220, 20, 60, 0.5), 15, 0.4, 0, 0);"
-                );
-            }
-        });
-
-        HBox btnBox = new HBox(endTurnBtn);
-        btnBox.setAlignment(Pos.CENTER);
-
-        bottom.getChildren().addAll(logLabel, logArea, btnBox);
-        return bottom;
-    }
+    // ========== CARD MANAGEMENT ==========
 
     public void addCardToHand(SpellCard card) {
         VBox cardBox = createCardUI(card);
@@ -1006,8 +1239,8 @@ public class GameUI extends Application {
         VBox cardBox = new VBox(8);
         cardBox.setAlignment(Pos.CENTER);
         cardBox.setPadding(new Insets(10));
-        cardBox.setPrefWidth(140);
-        cardBox.setPrefHeight(200);
+        cardBox.setPrefWidth(135);
+        cardBox.setPrefHeight(190);
 
         String cardColor = getCardColor(card.getName());
         cardBox.setStyle(
@@ -1020,16 +1253,16 @@ public class GameUI extends Application {
         );
 
         StackPane imagePane = new StackPane();
-        Circle imageBg = new Circle(35);
+        Circle imageBg = new Circle(32);
         imageBg.setFill(Color.web("#1a1a2e"));
 
         Label imageLabel = new Label(getSpellIcon(card.getName()));
-        imageLabel.setFont(Font.font(40));
+        imageLabel.setFont(Font.font(38));
 
         imagePane.getChildren().addAll(imageBg, imageLabel);
 
         Label nameLabel = new Label(card.getName());
-        nameLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 13));
+        nameLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 12));
         nameLabel.setTextFill(Color.WHITE);
         nameLabel.setWrapText(true);
         nameLabel.setStyle("-fx-alignment: center;");
@@ -1038,10 +1271,10 @@ public class GameUI extends Application {
         manaBox.setAlignment(Pos.CENTER);
 
         Label manaIcon = new Label("💎");
-        manaIcon.setFont(Font.font(14));
+        manaIcon.setFont(Font.font(13));
 
         Label manaLabel = new Label(String.valueOf(card.getSpell().getManaCost()));
-        manaLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 14));
+        manaLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 13));
         manaLabel.setTextFill(Color.CYAN);
 
         manaBox.getChildren().addAll(manaIcon, manaLabel);
@@ -1115,18 +1348,30 @@ public class GameUI extends Application {
 
     private String getSpellIcon(String spellName) {
         switch (spellName) {
-            case "Fireball": return "🔥";
-            case "Ice Blast": return "❄️";
-            case "Lightning": return "⚡";
-            case "Heal": return "💚";
-            case "Poison Cloud": return "☠️";
-            case "Drain": return "🩸";
-            case "Shield": return "🛡️";
-            case "Meteor": return "☄️";
-            case "Regeneration": return "✨";
-            case "Thunderbolt": return "⚡";
-            case "Curse": return "👻";
-            default: return "✨";
+            case "Fireball":
+                return "🔥";
+            case "Ice Blast":
+                return "❄️";
+            case "Lightning":
+                return "⚡";
+            case "Heal":
+                return "💚";
+            case "Poison Cloud":
+                return "☠️";
+            case "Drain":
+                return "🩸";
+            case "Shield":
+                return "🛡️";
+            case "Meteor":
+                return "☄️";
+            case "Regeneration":
+                return "✨";
+            case "Thunderbolt":
+                return "⚡";
+            case "Curse":
+                return "👻";
+            default:
+                return "✨";
         }
     }
 
@@ -1188,8 +1433,6 @@ public class GameUI extends Application {
             enemyMpBar.setProgress(Math.min(e.getMp() / 10.0, 1.0));
 
             refreshHandDisplay();
-
-            // CHECK FOR GAME END
             checkGameEnd();
         }
     }
@@ -1209,324 +1452,24 @@ public class GameUI extends Application {
         }
     }
 
-    private void showVictoryScreen() {
-        StackPane root = new StackPane();
-
-        // Victory gradient (gold/green tones)
-        BackgroundFill bgFill = new BackgroundFill(
-                new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                        new Stop(0, Color.web("#0a1e0a")),
-                        new Stop(0.3, Color.web("#1a4d1a")),
-                        new Stop(0.6, Color.web("#2d6e2d")),
-                        new Stop(1, Color.web("#1e3d1e"))
-                ),
-                CornerRadii.EMPTY,
-                Insets.EMPTY
-        );
-        root.setBackground(new Background(bgFill));
-
-        // Victory stars (create new ones for victory screen)
-        Pane victoryStars = createVictoryStars();
-
-        VBox victoryBox = new VBox(25);
-        victoryBox.setAlignment(Pos.CENTER);
-        victoryBox.setPadding(new Insets(40));
-
-        // Victory title
-        Label victoryTitle = new Label("🏆 GLORIOUS VICTORY! 🏆");
-        victoryTitle.setFont(Font.font("Georgia", FontWeight.BOLD, 50));
-        victoryTitle.setTextFill(Color.web("#FFD700"));
-
-        DropShadow victoryGlow = new DropShadow();
-        victoryGlow.setColor(Color.web("#32CD32"));
-        victoryGlow.setRadius(40);
-        victoryGlow.setSpread(1.0);
-        victoryTitle.setEffect(victoryGlow);
-
-        // Pulsing animation
-        ScaleTransition victoryPulse = new ScaleTransition(Duration.seconds(1.5), victoryTitle);
-        victoryPulse.setFromX(1.0);
-        victoryPulse.setFromY(1.0);
-        victoryPulse.setToX(1.1);
-        victoryPulse.setToY(1.1);
-        victoryPulse.setCycleCount(Animation.INDEFINITE);
-        victoryPulse.setAutoReverse(true);
-        victoryPulse.play();
-
-        // Subtitle
-        Label victorySubtitle = new Label("You have proven your magical prowess!");
-        victorySubtitle.setFont(Font.font("Georgia", FontPosture.ITALIC, 20));
-        victorySubtitle.setTextFill(Color.web("#90EE90"));
-
-        // Victory panel
-        VBox victoryPanel = new VBox(20);
-        victoryPanel.setPadding(new Insets(40));
-        victoryPanel.setAlignment(Pos.CENTER);
-        victoryPanel.setMaxWidth(600);
-        victoryPanel.setStyle(
-                "-fx-background-color: linear-gradient(to bottom, rgba(42, 74, 42, 0.9), rgba(28, 51, 28, 0.9));" +
-                        "-fx-border-color: linear-gradient(to right, #FFD700, #32CD32, #FFD700);" +
-                        "-fx-border-width: 4;" +
-                        "-fx-border-radius: 25;" +
-                        "-fx-background-radius: 25;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(50, 205, 50, 0.6), 30, 0.5, 0, 0);"
-        );
-
-        // Winner icon
-        Label winnerIcon = new Label("👑");
-        winnerIcon.setFont(Font.font(100));
-
-        RotateTransition iconRotate = new RotateTransition(Duration.seconds(3), winnerIcon);
-        iconRotate.setByAngle(360);
-        iconRotate.setCycleCount(Animation.INDEFINITE);
-        iconRotate.play();
-
-        // Winner name
-        Label winnerName = new Label(playerCustomization.getPlayerName().toUpperCase());
-        winnerName.setFont(Font.font("Georgia", FontWeight.BOLD, 32));
-        winnerName.setTextFill(Color.web("#FFD700"));
-
-        // Victory message
-        Label victoryMessage = new Label("⚔️ Defeated " + enemyCustomization.getEnemyName() + " ⚔️");
-        victoryMessage.setFont(Font.font("Georgia", FontWeight.BOLD, 22));
-        victoryMessage.setTextFill(Color.web("#90EE90"));
-
-        Rectangle separator = createSeparator();
-
-        // Stats
-        VBox statsBox = new VBox(10);
-        statsBox.setAlignment(Pos.CENTER);
-
-        Label hpRemaining = new Label("💚 HP Remaining: " + gc.getPlayer().getHp());
-        hpRemaining.setFont(Font.font("Georgia", FontWeight.BOLD, 18));
-        hpRemaining.setTextFill(Color.WHITE);
-
-        Label mpRemaining = new Label("💎 Mana Remaining: " + gc.getPlayer().getMp());
-        mpRemaining.setFont(Font.font("Georgia", FontWeight.BOLD, 18));
-        mpRemaining.setTextFill(Color.WHITE);
-
-        statsBox.getChildren().addAll(hpRemaining, mpRemaining);
-
-        // Play again button
-        Button playAgainBtn = createStyledButton("🔄 CHALLENGE ANOTHER WIZARD", "#32CD32", "#228B22");
-        playAgainBtn.setOnAction(e -> showCustomizationScreen());
-
-        // Return to creation button
-        Button exitBtn = createStyledButton("🧙‍♂️ RETURN TO CREATION", "#4169E1", "#1E3A8A");
-        exitBtn.setOnAction(e -> showCustomizationScreen());
-
-        victoryPanel.getChildren().addAll(
-                winnerIcon,
-                winnerName,
-                victoryMessage,
-                separator,
-                statsBox,
-                playAgainBtn,
-                exitBtn
-        );
-
-        victoryBox.getChildren().addAll(victoryTitle, victorySubtitle, victoryPanel);
-        root.getChildren().addAll(victoryStars, victoryBox);
-
-        Scene scene = new Scene(root, 900, 750);
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("🏆 VICTORY! 🏆");
-
-        // Fade in
-        FadeTransition fade = new FadeTransition(Duration.seconds(1.5), root);
-        fade.setFromValue(0);
-        fade.setToValue(1);
-        fade.play();
-    }
-
-    private void showDefeatScreen() {
-        StackPane root = new StackPane();
-
-        // Defeat gradient (dark red/purple tones)
-        BackgroundFill bgFill = new BackgroundFill(
-                new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                        new Stop(0, Color.web("#1e0a0a")),
-                        new Stop(0.3, Color.web("#4d1a1a")),
-                        new Stop(0.6, Color.web("#6e2d2d")),
-                        new Stop(1, Color.web("#3d1e1e"))
-                ),
-                CornerRadii.EMPTY,
-                Insets.EMPTY
-        );
-        root.setBackground(new Background(bgFill));
-
-        // Defeat stars (create new ones for defeat screen)
-        Pane defeatStars = createDefeatStars();
-
-        VBox defeatBox = new VBox(25);
-        defeatBox.setAlignment(Pos.CENTER);
-        defeatBox.setPadding(new Insets(40));
-
-        // Defeat title
-        Label defeatTitle = new Label("💀 DEFEAT 💀");
-        defeatTitle.setFont(Font.font("Georgia", FontWeight.BOLD, 50));
-        defeatTitle.setTextFill(Color.web("#DC143C"));
-
-        DropShadow defeatGlow = new DropShadow();
-        defeatGlow.setColor(Color.web("#8B0000"));
-        defeatGlow.setRadius(40);
-        defeatGlow.setSpread(1.0);
-        defeatTitle.setEffect(defeatGlow);
-
-        // Pulsing animation
-        ScaleTransition defeatPulse = new ScaleTransition(Duration.seconds(1.5), defeatTitle);
-        defeatPulse.setFromX(1.0);
-        defeatPulse.setFromY(1.0);
-        defeatPulse.setToX(1.08);
-        defeatPulse.setToY(1.08);
-        defeatPulse.setCycleCount(Animation.INDEFINITE);
-        defeatPulse.setAutoReverse(true);
-        defeatPulse.play();
-
-        // Subtitle
-        Label defeatSubtitle = new Label("Your magical journey ends here...");
-        defeatSubtitle.setFont(Font.font("Georgia", FontPosture.ITALIC, 20));
-        defeatSubtitle.setTextFill(Color.web("#FF6B6B"));
-
-        // Defeat panel
-        VBox defeatPanel = new VBox(20);
-        defeatPanel.setPadding(new Insets(40));
-        defeatPanel.setAlignment(Pos.CENTER);
-        defeatPanel.setMaxWidth(600);
-        defeatPanel.setStyle(
-                "-fx-background-color: linear-gradient(to bottom, rgba(74, 42, 42, 0.9), rgba(51, 28, 28, 0.9));" +
-                        "-fx-border-color: linear-gradient(to right, #DC143C, #8B0000, #DC143C);" +
-                        "-fx-border-width: 4;" +
-                        "-fx-border-radius: 25;" +
-                        "-fx-background-radius: 25;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(220, 20, 60, 0.6), 30, 0.5, 0, 0);"
-        );
-
-        // Defeat icon
-        Label defeatIcon = new Label("⚰️");
-        defeatIcon.setFont(Font.font(100));
-
-        TranslateTransition iconFloat = new TranslateTransition(Duration.seconds(2), defeatIcon);
-        iconFloat.setByY(-8);
-        iconFloat.setCycleCount(Animation.INDEFINITE);
-        iconFloat.setAutoReverse(true);
-        iconFloat.play();
-
-        // Defeated name
-        Label defeatedName = new Label(playerCustomization.getPlayerName().toUpperCase());
-        defeatedName.setFont(Font.font("Georgia", FontWeight.BOLD, 32));
-        defeatedName.setTextFill(Color.web("#DC143C"));
-
-        // Defeat message
-        Label defeatMessage = new Label("⚔️ Vanquished by " + enemyCustomization.getEnemyName() + " ⚔️");
-        defeatMessage.setFont(Font.font("Georgia", FontWeight.BOLD, 22));
-        defeatMessage.setTextFill(Color.web("#FF6B6B"));
-
-        Rectangle separator = createSeparator();
-
-        // Motivational quote
-        Label quote = new Label("\"Even the greatest wizards must fall before they can rise again\"");
-        quote.setFont(Font.font("Georgia", FontPosture.ITALIC, 16));
-        quote.setTextFill(Color.web("#FFD700"));
-        quote.setWrapText(true);
-        quote.setStyle("-fx-alignment: center;");
-        quote.setMaxWidth(500);
-
-        // Try again button
-        Button tryAgainBtn = createStyledButton("⚔️ SEEK REDEMPTION", "#DC143C", "#8B0000");
-        tryAgainBtn.setOnAction(e -> showCustomizationScreen());
-
-        // Return to creation button
-        Button exitBtn = createStyledButton("🧙‍♂️ RETURN TO CREATION", "#4A4A4A", "#2F2F2F");
-        exitBtn.setOnAction(e -> showCustomizationScreen());
-
-        defeatPanel.getChildren().addAll(
-                defeatIcon,
-                defeatedName,
-                defeatMessage,
-                separator,
-                quote,
-                tryAgainBtn,
-                exitBtn
-        );
-
-        defeatBox.getChildren().addAll(defeatTitle, defeatSubtitle, defeatPanel);
-        root.getChildren().addAll(defeatStars, defeatBox);
-
-        Scene scene = new Scene(root, 900, 750);
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("💀 Defeat 💀");
-
-        // Fade in
-        FadeTransition fade = new FadeTransition(Duration.seconds(1.5), root);
-        fade.setFromValue(0);
-        fade.setToValue(1);
-        fade.play();
-    }
-
-    private Button createStyledButton(String text, String color1, String color2) {
-        Button btn = new Button(text);
-        btn.setPrefWidth(350);
-        btn.setPrefHeight(55);
-        btn.setFont(Font.font("Georgia", FontWeight.BOLD, 18));
-        btn.setStyle(
-                "-fx-background-color: linear-gradient(to bottom, " + color1 + ", " + color2 + ");" +
-                        "-fx-text-fill: white;" +
-                        "-fx-background-radius: 15;" +
-                        "-fx-border-color: #FFD700;" +
-                        "-fx-border-width: 3;" +
-                        "-fx-border-radius: 15;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-effect: dropshadow(gaussian, " + color1 + ", 15, 0.5, 0, 0);"
-        );
-
-        btn.setOnMouseEntered(e -> {
-            btn.setStyle(
-                    "-fx-background-color: linear-gradient(to bottom, " + color1 + ", " + color2 + ");" +
-                            "-fx-text-fill: white;" +
-                            "-fx-background-radius: 15;" +
-                            "-fx-border-color: #FFD700;" +
-                            "-fx-border-width: 4;" +
-                            "-fx-border-radius: 15;" +
-                            "-fx-cursor: hand;" +
-                            "-fx-effect: dropshadow(gaussian, " + color1 + ", 25, 0.7, 0, 0);"
-            );
-            btn.setScaleX(1.05);
-            btn.setScaleY(1.05);
-        });
-
-        btn.setOnMouseExited(e -> {
-            btn.setStyle(
-                    "-fx-background-color: linear-gradient(to bottom, " + color1 + ", " + color2 + ");" +
-                            "-fx-text-fill: white;" +
-                            "-fx-background-radius: 15;" +
-                            "-fx-border-color: #FFD700;" +
-                            "-fx-border-width: 3;" +
-                            "-fx-border-radius: 15;" +
-                            "-fx-cursor: hand;" +
-                            "-fx-effect: dropshadow(gaussian, " + color1 + ", 15, 0.5, 0, 0);"
-            );
-            btn.setScaleX(1.0);
-            btn.setScaleY(1.0);
-        });
-
-        return btn;
-    }
-
     public void updateLog(String logText) {
         logArea.setText(logText);
         logArea.setScrollTop(Double.MAX_VALUE);
     }
 
-    private void playOpeningAnimation(StackPane root) {
-        FadeTransition fade = new FadeTransition(Duration.seconds(1), root);
+    // ========== ANIMATIONS ==========
+
+    private void playFadeIn(StackPane root) {
+        FadeTransition fade = new FadeTransition(Duration.seconds(1.2), root);
         fade.setFromValue(0);
         fade.setToValue(1);
         fade.play();
     }
 
     private void playTurnTransitionAnimation() {
-        Rectangle flash = new Rectangle(900, 750);
+        Rectangle flash = new Rectangle();
+        flash.setWidth(primaryStage.getScene().getWidth());
+        flash.setHeight(primaryStage.getScene().getHeight());
         flash.setFill(Color.WHITE);
         flash.setOpacity(0);
         animationPane.getChildren().add(flash);
@@ -1545,8 +1488,8 @@ public class GameUI extends Application {
     private void playSpellCastAnimation(String spellName) {
         Circle effect = new Circle(30);
         effect.setFill(Color.web(getCardColor(spellName), 0.7));
-        effect.setCenterX(450);
-        effect.setCenterY(300);
+        effect.setCenterX(primaryStage.getScene().getWidth() / 2);
+        effect.setCenterY(primaryStage.getScene().getHeight() / 2);
 
         animationPane.getChildren().add(effect);
 
