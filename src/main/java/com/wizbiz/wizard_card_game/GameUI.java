@@ -6,6 +6,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.effect.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -19,6 +23,14 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import java.io.InputStream;
+import java.util.Objects;
+
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
+import java.awt.*;
 
 /**
  * Professional Wizardly UI - Fully Polished & Consistent
@@ -799,51 +811,38 @@ public class GameUI extends Application {
     }
 
     private VBox createPreviewSection() {
-        VBox previewSection = new VBox(SPACING_SMALL);
-        previewSection.setAlignment(Pos.CENTER);
+        VBox box = new VBox(SPACING_SMALL);
+        box.setAlignment(Pos.CENTER);
 
-        Label previewLabel = new Label("⚡ YOUR WIZARD ⚡");
-        previewLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 14));
-        previewLabel.setTextFill(Color.web("#FFD700"));
+        // Preview circle frame
+        previewCircle = new Circle(70);
+        previewCircle.setStroke(Color.GOLD);
+        previewCircle.setStrokeWidth(3);
+        previewCircle.setFill(Color.rgb(50, 50, 80));
 
-        StackPane previewPane = new StackPane();
-        previewPane.setPrefSize(110, 110);
+        // Preview image container
+        previewIcon = new Label();
+        previewIcon.setMinSize(140, 140);
 
-        // Outer decorative ring
-        Circle outerRing = new Circle(50);
-        outerRing.setFill(Color.TRANSPARENT);
-        outerRing.setStroke(Color.web("#FFD700"));
-        outerRing.setStrokeWidth(2);
-        outerRing.setOpacity(0.5);
+        // ImageView for displaying the actual character face
+        ImageView faceImg = new ImageView();
+        faceImg.setFitWidth(140);
+        faceImg.setFitHeight(140);
+        faceImg.setPreserveRatio(true);
 
-        // Rotating animation
-        RotateTransition ringRotate = new RotateTransition(Duration.seconds(8), outerRing);
-        ringRotate.setByAngle(360);
-        ringRotate.setCycleCount(Animation.INDEFINITE);
-        ringRotate.play();
+        // Attach ImageView to label
+        previewIcon.setGraphic(faceImg);
 
-        // Inner preview circle
-        previewCircle = new Circle(38);
-        previewCircle.setFill(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
-                new Stop(0, Color.web("#4169E1")),
-                new Stop(0.5, Color.web("#2E5CB8")),
-                new Stop(1, Color.web("#1E3A8A"))
-        ));
-        previewCircle.setEffect(createGlowEffect(Color.web("#4169E1"), 20, 0.5));
+        // Load default preview image (if customization not chosen yet)
+        updatePreviewAnimation();
 
-        previewIcon = new Label("🧙‍♂️");
-        previewIcon.setFont(Font.font(48));
+        Label text = new Label("Your Appearance");
+        text.setFont(Font.font("Georgia", FontWeight.BOLD, 16));
+        text.setTextFill(Color.LIGHTGRAY);
 
-        // Floating animation
-        TranslateTransition float1 = new TranslateTransition(Duration.seconds(2), previewIcon);
-        float1.setByY(-5);
-        float1.setCycleCount(Animation.INDEFINITE);
-        float1.setAutoReverse(true);
-        float1.play();
+        box.getChildren().addAll(previewCircle, previewIcon, text);
 
-        previewPane.getChildren().addAll(outerRing, previewCircle, previewIcon);
-        previewSection.getChildren().addAll(previewLabel, previewPane);
-        return previewSection;
+        return box;
     }
 
     private Rectangle createSeparator() {
@@ -1049,14 +1048,30 @@ public class GameUI extends Application {
     }
 
     private void updatePreviewAnimation() {
-        ScaleTransition scale = new ScaleTransition(Duration.millis(200), previewIcon);
-        scale.setFromX(1.0);
-        scale.setFromY(1.0);
-        scale.setToX(1.2);
-        scale.setToY(1.2);
-        scale.setAutoReverse(true);
-        scale.setCycleCount(2);
-        scale.play();
+        // If customization settings aren't set yet, make a temp one
+        if (playerCustomization == null) {
+            playerCustomization = new PlayerCustomization();
+        }
+
+        String path = playerCustomization.getFaceImagePath();
+
+        try {
+            // Try to load image
+            InputStream in = getClass().getResourceAsStream(path);
+
+            System.out.println("Loading image: " + path + " | FOUND? " + (in != null));
+
+            // If not found, throw a clear error
+            Image img = new Image(Objects.requireNonNull(in,
+                    "Image not found at: " + path));
+
+            // Apply to preview icon
+            ((ImageView) previewIcon.getGraphic()).setImage(img);
+
+        } catch (Exception e) {
+            System.out.println("FAILED TO LOAD IMAGE: " + path);
+            e.printStackTrace();
+        }
     }
 
     private void updatePreviewColor(String robe) {

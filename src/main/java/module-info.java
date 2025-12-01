@@ -3,6 +3,7 @@ module com.wizbiz.wizard_card_game {
     requires javafx.fxml;
 
     requires org.kordamp.ikonli.javafx;
+    requires java.desktop;
 
     opens com.wizbiz.wizard_card_game to javafx.fxml;
     exports com.wizbiz.wizard_card_game;

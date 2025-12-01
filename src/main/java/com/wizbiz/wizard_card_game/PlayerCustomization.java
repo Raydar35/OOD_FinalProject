@@ -5,20 +5,21 @@ package com.wizbiz.wizard_card_game;
  * Includes face style and wizard outfit components
  */
 public class PlayerCustomization {
-    // Face options (only 3 now)
-    private String faceType;  // "face1", "face2", or "face3"
+
+    // Face options now match your REAL image filenames (no extension)
+    private String faceType;  // "RuggedWarrior", "WiseElder", "YoungProdigy"
 
     // Outfit components
-    private String hatType;    // e.g., "pointy_hat", "wide_brim_hat", "crown"
-    private String robeColor;  // e.g., "blue", "red", "purple", "green"
-    private String staffType;  // e.g., "wooden_staff", "crystal_staff", "bone_staff"
+    private String hatType;
+    private String robeColor;
+    private String staffType;
 
     // Player name
     private String playerName;
 
-    // Default constructor with basic appearance
+    // Default constructor
     public PlayerCustomization() {
-        this.faceType = "face1";
+        this.faceType = "WiseElder";   // default your first image
         this.hatType = "pointy_hat";
         this.robeColor = "blue";
         this.staffType = "wooden_staff";
@@ -50,16 +51,27 @@ public class PlayerCustomization {
     public void setPlayerName(String playerName) { this.playerName = playerName; }
 
     /**
-     * Get the file path for the face image
-     * @return Path to face image resource
+     * FACE IMAGE — updated to load YOUR PHOTO FILES
+     * RuggedWarrior.jpeg
+     * WiseElder.JPG
+     * YoungProdigy.jpeg
      */
     public String getFaceImagePath() {
-        return "/images/faces/" + faceType + ".png";
+        return "/images/faces/" + faceType + ".jpeg";
+    }
+
+    // Maps your filenames to their actual extensions
+    private String getFaceExtension(String name) {
+        return switch (name) {
+            case "RuggedWarrior" -> ".jpeg";
+            case "WiseElder" -> ".jpeg";
+            case "YoungProdigy" -> ".jpeg";
+            default -> ".png"; // fallback
+        };
     }
 
     /**
      * Get the file path for the hat image
-     * @return Path to hat image resource
      */
     public String getHatImagePath() {
         return "/images/hats/" + hatType + ".png";
@@ -67,7 +79,6 @@ public class PlayerCustomization {
 
     /**
      * Get the file path for the robe image
-     * @return Path to robe image resource
      */
     public String getRobeImagePath() {
         return "/images/robes/" + robeColor + "_robe.png";
@@ -75,15 +86,13 @@ public class PlayerCustomization {
 
     /**
      * Get the file path for the staff image
-     * @return Path to staff image resource
      */
     public String getStaffImagePath() {
         return "/images/staffs/" + staffType + ".png";
     }
 
     /**
-     * Get composite avatar image path (if using pre-composed images)
-     * @return Path to full avatar image
+     * Composite avatar (you are not using this yet)
      */
     public String getCompositeAvatarPath() {
         return "/images/avatars/" + faceType + "_" + hatType + "_" +
