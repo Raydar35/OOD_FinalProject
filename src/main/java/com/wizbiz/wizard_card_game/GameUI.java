@@ -81,6 +81,10 @@ public class GameUI extends Application {
     // Game state
     private boolean gameEnded = false;
 
+    // Win streak and difficulty tracking
+    private int winStreak = 0;
+    private int currentDifficulty = 1;
+
     @Override
     public void start(Stage stage) {
         this.primaryStage = stage;
@@ -89,6 +93,10 @@ public class GameUI extends Application {
     }
 
     private void showCustomizationScreen() {
+        // Reset win streak and difficulty when creating new wizard
+        winStreak = 0;
+        currentDifficulty = 1;
+
         StackPane root = new StackPane();
 
         // Deep gradient background (consistent across all screens)
@@ -166,11 +174,14 @@ public class GameUI extends Application {
         selectionsGrid.add(robeBox, 0, 1);
         selectionsGrid.add(staffBox, 1, 1);
 
-        // Update preview on selection change
-        faceCombo.setOnAction(e -> updatePreviewAnimation());
-        hatCombo.setOnAction(e -> updatePreviewAnimation());
-        robeCombo.setOnAction(e -> updatePreviewColor(robeCombo.getValue()));
-        staffCombo.setOnAction(e -> updatePreviewAnimation());
+        // Update preview on selection change - FIXED TO PASS PARAMETERS
+        faceCombo.setOnAction(e -> updatePreviewAnimation(faceCombo.getValue(), hatCombo.getValue(), staffCombo.getValue()));
+        hatCombo.setOnAction(e -> updatePreviewAnimation(faceCombo.getValue(), hatCombo.getValue(), staffCombo.getValue()));
+        robeCombo.setOnAction(e -> {
+            updatePreviewColor(robeCombo.getValue());
+            updatePreviewAnimation(faceCombo.getValue(), hatCombo.getValue(), staffCombo.getValue());
+        });
+        staffCombo.setOnAction(e -> updatePreviewAnimation(faceCombo.getValue(), hatCombo.getValue(), staffCombo.getValue()));
 
         // Separator
         Rectangle separator3 = createSeparator();
@@ -212,6 +223,9 @@ public class GameUI extends Application {
                 footerText
         );
 
+        // Initialize preview with default selections - ADDED THIS LINE
+        updatePreviewAnimation(faceCombo.getValue(), hatCombo.getValue(), staffCombo.getValue());
+
         customizationBox.getChildren().addAll(titleBox, customPanel);
         root.getChildren().addAll(starsPane, customizationBox);
 
@@ -225,7 +239,16 @@ public class GameUI extends Application {
     }
 
     private void startBattle() {
+        startBattle(false);
+    }
+
+    private void startBattle(boolean isContinuation) {
         gameEnded = false; // Reset game state
+
+        // Generate new enemy if continuing
+        if (isContinuation) {
+            enemyCustomization = new EnemyCustomization(playerCustomization);
+        }
 
         StackPane root = new StackPane();
         root.setBackground(createDeepPurpleBackground());
@@ -258,16 +281,54 @@ public class GameUI extends Application {
 
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("⚔️ " + playerCustomization.getPlayerName() + " vs " + enemyCustomization.getEnemyName() + " ⚔️");
+
+        String difficultyText = currentDifficulty > 1 ? " [DIFFICULTY " + currentDifficulty + "]" : "";
+        primaryStage.setTitle("⚔️ " + playerCustomization.getPlayerName() + " vs " +
+                enemyCustomization.getEnemyName() + difficultyText + " ⚔️");
 
         gc.setUI(this);
 
         Player customPlayer = new Player(playerCustomization);
         Enemy customEnemy = new Enemy(enemyCustomization);
+
+        // Apply difficulty scaling to enemy
+        if (currentDifficulty > 1) {
+            applyDifficultyScaling(customEnemy);
+        }
+
+        // Apply win streak bonus to player (starting MP)
+        if (winStreak > 0) {
+            applyWinStreakBonus(customPlayer);
+        }
+
         gc.startGameWithCustomizations(customPlayer, customEnemy);
         refreshUI();
 
         playFadeIn(root);
+    }
+
+    private void applyDifficultyScaling(Enemy enemy) {
+        // Increase enemy HP and MP based on difficulty
+        int hpBonus = (currentDifficulty - 1) * 20; // +20 HP per difficulty level
+        int mpBonus = (currentDifficulty - 1) * 2;  // +2 MP per difficulty level
+
+        enemy.addHp(hpBonus);
+        enemy.addMp(mpBonus);
+
+        System.out.println("Enemy difficulty scaled to level " + currentDifficulty);
+        System.out.println("HP Bonus: +" + hpBonus + " (Total: " + enemy.getHp() + ")");
+        System.out.println("MP Bonus: +" + mpBonus + " (Total: " + enemy.getMp() + ")");
+    }
+
+    private void applyWinStreakBonus(Player player) {
+        // Reward player with extra starting MP based on win streak
+        int mpBonus = winStreak * 1; // +1 MP per win in streak
+
+        player.addStartingMp(mpBonus);
+
+        System.out.println("Player win streak bonus applied!");
+        System.out.println("Win Streak: " + winStreak);
+        System.out.println("Starting MP Bonus: +" + mpBonus + " (Total: " + player.getMp() + ")");
     }
 
     private VBox createTopSection() {
@@ -341,7 +402,7 @@ public class GameUI extends Application {
                         "-fx-effect: dropshadow(gaussian, " + borderColor + ", 15, 0.3, 0, 0);"
         );
 
-        // Character icon with decorative ring
+        // Character icon with decorative ring - NOW SHOWS ACTUAL FACE IMAGES
         StackPane iconPane = new StackPane();
 
         Circle outerRing = new Circle(45);
@@ -358,17 +419,65 @@ public class GameUI extends Application {
         ));
         iconCircle.setEffect(createGlowEffect(Color.web(borderColor), 20, 0.5));
 
-        Label icon = new Label(isPlayer ? "🧙‍♂️" : "🧙‍♀️");
-        icon.setFont(Font.font(44));
+        // Try to load actual face image, fallback to emoji if fails
+        boolean imageLoaded = false;
 
-        // Floating animation
-        TranslateTransition floatAnim = new TranslateTransition(Duration.seconds(2.5), icon);
-        floatAnim.setByY(-4);
-        floatAnim.setCycleCount(Animation.INDEFINITE);
-        floatAnim.setAutoReverse(true);
-        floatAnim.play();
+        try {
+            String facePath = isPlayer ?
+                    playerCustomization.getFaceImagePath() :
+                    enemyCustomization.getFaceImagePath();
 
-        iconPane.getChildren().addAll(outerRing, iconCircle, icon);
+            InputStream in = getClass().getResourceAsStream(facePath);
+            if (in != null) {
+                Image faceImg = new Image(in);
+
+                // Create ImageView for face
+                ImageView faceImageView = new ImageView(faceImg);
+                faceImageView.setFitWidth(90);  // Increased from 72
+                faceImageView.setFitHeight(90); // Increased from 72
+                faceImageView.setPreserveRatio(true);
+                faceImageView.setSmooth(true);  // Smooth rendering
+
+                // Create rectangular clip instead of circular to show more of image
+                Rectangle imageClip = new Rectangle(90, 90);
+                imageClip.setArcWidth(20);  // Rounded corners
+                imageClip.setArcHeight(20);
+                faceImageView.setClip(imageClip);
+
+                System.out.println("Loaded face image: " + facePath + " for " + (isPlayer ? "player" : "enemy"));
+                imageLoaded = true;
+
+                // Floating animation for the image
+                TranslateTransition floatAnim = new TranslateTransition(Duration.seconds(2.5), faceImageView);
+                floatAnim.setByY(-4);
+                floatAnim.setCycleCount(Animation.INDEFINITE);
+                floatAnim.setAutoReverse(true);
+                floatAnim.play();
+
+                // Add background circle and image (no outer ring since we're using rectangle now)
+                iconPane.getChildren().addAll(iconCircle, faceImageView);
+            } else {
+                System.out.println("WARNING: Could not find face image: " + facePath);
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR loading face image: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        // If image didn't load, use emoji fallback
+        if (!imageLoaded) {
+            Label fallbackIcon = new Label(isPlayer ? "🧙‍♂️" : "🧙‍♀️");
+            fallbackIcon.setFont(Font.font(44));
+
+            // Floating animation for fallback
+            TranslateTransition floatAnim = new TranslateTransition(Duration.seconds(2.5), fallbackIcon);
+            floatAnim.setByY(-4);
+            floatAnim.setCycleCount(Animation.INDEFINITE);
+            floatAnim.setAutoReverse(true);
+            floatAnim.play();
+
+            iconPane.getChildren().addAll(outerRing, iconCircle, fallbackIcon);
+        }
 
         String displayName = isPlayer ?
                 playerCustomization.getPlayerName() :
@@ -511,6 +620,10 @@ public class GameUI extends Application {
     }
 
     private void showVictoryScreen() {
+        // Increment win streak
+        winStreak++;
+        currentDifficulty++;
+
         StackPane root = new StackPane();
         root.setBackground(createVictoryBackground());
 
@@ -565,7 +678,40 @@ public class GameUI extends Application {
         victoryMessage.setFont(Font.font("Georgia", FontWeight.BOLD, 18));
         victoryMessage.setTextFill(Color.web("#90EE90"));
 
-        Rectangle separator = createSeparator();
+        Rectangle separator1 = createSeparator();
+
+        // Win Streak Display
+        VBox streakBox = new VBox(SPACING_SMALL);
+        streakBox.setAlignment(Pos.CENTER);
+
+        Label streakLabel = new Label("🔥 WIN STREAK: " + winStreak + " 🔥");
+        streakLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 22));
+        streakLabel.setTextFill(Color.web("#FFD700"));
+        streakLabel.setEffect(createGlowEffect(Color.web("#FFA500"), 15, 0.6));
+
+        if (winStreak > 1) {
+            Label streakSubtext = new Label("Next opponent will be Level " + currentDifficulty + " difficulty!");
+            streakSubtext.setFont(Font.font("Georgia", FontPosture.ITALIC, 14));
+            streakSubtext.setTextFill(Color.web("#FFFFFF"));
+
+            Label mpBonusText = new Label("💎 You'll start with +" + winStreak + " bonus mana!");
+            mpBonusText.setFont(Font.font("Georgia", FontPosture.ITALIC, 13));
+            mpBonusText.setTextFill(Color.web("#87CEEB"));
+
+            streakBox.getChildren().addAll(streakLabel, streakSubtext, mpBonusText);
+        } else {
+            Label streakSubtext = new Label("Next opponent will be Level " + currentDifficulty + " difficulty!");
+            streakSubtext.setFont(Font.font("Georgia", FontPosture.ITALIC, 14));
+            streakSubtext.setTextFill(Color.web("#FFFFFF"));
+
+            Label mpBonusText = new Label("💎 You'll start with +1 bonus mana!");
+            mpBonusText.setFont(Font.font("Georgia", FontPosture.ITALIC, 13));
+            mpBonusText.setTextFill(Color.web("#87CEEB"));
+
+            streakBox.getChildren().addAll(streakLabel, streakSubtext, mpBonusText);
+        }
+
+        Rectangle separator2 = createSeparator();
 
         // Stats
         VBox statsBox = new VBox(SPACING_SMALL);
@@ -579,11 +725,26 @@ public class GameUI extends Application {
         mpRemaining.setFont(Font.font("Georgia", FontWeight.BOLD, 15));
         mpRemaining.setTextFill(Color.WHITE);
 
-        statsBox.getChildren().addAll(hpRemaining, mpRemaining);
+        Label difficultyLabel = new Label("⚔️ Difficulty Level: " + (currentDifficulty - 1));
+        difficultyLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 15));
+        difficultyLabel.setTextFill(Color.web("#FFD700"));
+
+        statsBox.getChildren().addAll(hpRemaining, mpRemaining, difficultyLabel);
+
+        Rectangle separator3 = createSeparator();
 
         // Buttons
-        Button playAgainBtn = createActionButton("🔄 CHALLENGE ANOTHER WIZARD", "#32CD32", "#228B22");
-        playAgainBtn.setOnAction(e -> showCustomizationScreen());
+        Button continueBtn = createActionButton("⚔️ CONTINUE FIGHTING (HARDER)", "#FF6B35", "#C44A2A");
+        continueBtn.setOnAction(e -> {
+            // Continue with same wizard, new enemy, higher difficulty
+            startBattle(true);
+        });
+
+        Button playAgainBtn = createActionButton("🔄 NEW WIZARD & CHALLENGE", "#32CD32", "#228B22");
+        playAgainBtn.setOnAction(e -> {
+            // Reset everything and start fresh
+            showCustomizationScreen();
+        });
 
         Button returnBtn = createActionButton("🧙‍♂️ RETURN TO CREATION", "#4169E1", "#1E3A8A");
         returnBtn.setOnAction(e -> showCustomizationScreen());
@@ -592,8 +753,12 @@ public class GameUI extends Application {
                 winnerIcon,
                 winnerName,
                 victoryMessage,
-                separator,
+                separator1,
+                streakBox,
+                separator2,
                 statsBox,
+                separator3,
+                continueBtn,
                 playAgainBtn,
                 returnBtn
         );
@@ -668,7 +833,35 @@ public class GameUI extends Application {
         defeatMessage.setFont(Font.font("Georgia", FontWeight.BOLD, 18));
         defeatMessage.setTextFill(Color.web("#FF6B6B"));
 
-        Rectangle separator = createSeparator();
+        Rectangle separator1 = createSeparator();
+
+        // Win Streak Achievement (if any)
+        VBox achievementBox = new VBox(SPACING_SMALL);
+        achievementBox.setAlignment(Pos.CENTER);
+
+        if (winStreak > 0) {
+            Label streakAchieved = new Label("🏆 WIN STREAK ACHIEVED: " + winStreak + " 🏆");
+            streakAchieved.setFont(Font.font("Georgia", FontWeight.BOLD, 18));
+            streakAchieved.setTextFill(Color.web("#FFD700"));
+
+            String rankMessage = getStreakRank(winStreak);
+            Label rankLabel = new Label(rankMessage);
+            rankLabel.setFont(Font.font("Georgia", FontPosture.ITALIC, 14));
+            rankLabel.setTextFill(Color.web("#FFD700"));
+
+            Label difficultyReached = new Label("Reached Difficulty Level " + (currentDifficulty - 1));
+            difficultyReached.setFont(Font.font("Georgia", 13));
+            difficultyReached.setTextFill(Color.WHITE);
+
+            achievementBox.getChildren().addAll(streakAchieved, rankLabel, difficultyReached);
+        } else {
+            Label noStreak = new Label("Defeated on first battle");
+            noStreak.setFont(Font.font("Georgia", FontPosture.ITALIC, 14));
+            noStreak.setTextFill(Color.web("#FF6B6B"));
+            achievementBox.getChildren().add(noStreak);
+        }
+
+        Rectangle separator2 = createSeparator();
 
         // Motivational quote
         Label quote = new Label("\"Even the greatest wizards must fall before they can rise again\"");
@@ -678,19 +871,24 @@ public class GameUI extends Application {
         quote.setStyle("-fx-alignment: center;");
         quote.setMaxWidth(500);
 
+        Rectangle separator3 = createSeparator();
+
         // Buttons
         Button tryAgainBtn = createActionButton("⚔️ SEEK REDEMPTION", "#DC143C", "#8B0000");
         tryAgainBtn.setOnAction(e -> showCustomizationScreen());
 
-        Button returnBtn = createActionButton("🧙‍♂️ RETURN TO CREATION", "#4A4A4A", "#2F2F2F");
+        Button returnBtn = createActionButton("🧙‍♂️ CREATE NEW WIZARD", "#4A4A4A", "#2F2F2F");
         returnBtn.setOnAction(e -> showCustomizationScreen());
 
         defeatPanel.getChildren().addAll(
                 defeatIcon,
                 defeatedName,
                 defeatMessage,
-                separator,
+                separator1,
+                achievementBox,
+                separator2,
                 quote,
+                separator3,
                 tryAgainBtn,
                 returnBtn
         );
@@ -703,6 +901,15 @@ public class GameUI extends Application {
         primaryStage.setTitle("💀 Defeat 💀");
 
         playFadeIn(root);
+    }
+
+    private String getStreakRank(int streak) {
+        if (streak >= 10) return "⭐ LEGENDARY WIZARD! ⭐";
+        if (streak >= 7) return "🌟 MASTER WIZARD! 🌟";
+        if (streak >= 5) return "✨ EXPERT WIZARD! ✨";
+        if (streak >= 3) return "💫 SKILLED WIZARD! 💫";
+        if (streak >= 1) return "⚡ APPRENTICE WIZARD! ⚡";
+        return "";
     }
 
     // ========== HELPER METHODS ==========
@@ -832,9 +1039,6 @@ public class GameUI extends Application {
 
         // Attach ImageView to label
         previewIcon.setGraphic(faceImg);
-
-        // Load default preview image (if customization not chosen yet)
-        updatePreviewAnimation();
 
         Label text = new Label("Your Appearance");
         text.setFont(Font.font("Georgia", FontWeight.BOLD, 16));
@@ -1047,13 +1251,17 @@ public class GameUI extends Application {
         return box;
     }
 
-    private void updatePreviewAnimation() {
-        // If customization settings aren't set yet, make a temp one
-        if (playerCustomization == null) {
-            playerCustomization = new PlayerCustomization();
-        }
+    // FIXED METHOD - Now accepts parameters from ComboBox selections
+    private void updatePreviewAnimation(String faceSelection, String hatSelection, String staffSelection) {
+        // Parse the selections to get the actual values
+        String face = parseFace(faceSelection);
+        String hat = parseHat(hatSelection);
+        String staff = parseStaff(staffSelection);
 
-        String path = playerCustomization.getFaceImagePath();
+        // Create a temporary customization object with current selections
+        PlayerCustomization tempCustomization = new PlayerCustomization(face, hat, "blue", staff, "Preview");
+
+        String path = tempCustomization.getFaceImagePath();
 
         try {
             // Try to load image
@@ -1110,7 +1318,6 @@ public class GameUI extends Application {
         ));
 
         previewCircle.setEffect(createGlowEffect(Color.web(color1), 20, 0.5));
-        updatePreviewAnimation();
     }
 
     private Pane createStarsEffect() {
@@ -1206,10 +1413,12 @@ public class GameUI extends Application {
         return starsPane;
     }
 
+    // FIXED - Returns correct face names matching your image files
     private String parseFace(String value) {
-        if (value.contains("1") || value.contains("Rugged")) return "face1";
-        if (value.contains("2") || value.contains("Elder")) return "face2";
-        return "face3";
+        if (value.contains("Rugged") || value.contains("Warrior")) return "RuggedWarrior";
+        if (value.contains("Elder") || value.contains("Wise")) return "WiseElder";
+        if (value.contains("Young") || value.contains("Prodigy")) return "YoungProdigy";
+        return "WiseElder";  // default
     }
 
     private String parseHat(String value) {
@@ -1524,4 +1733,3 @@ public class GameUI extends Application {
         launch(args);
     }
 }
-

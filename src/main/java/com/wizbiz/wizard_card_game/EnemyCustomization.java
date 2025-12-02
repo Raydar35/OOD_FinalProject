@@ -3,10 +3,11 @@ package com.wizbiz.wizard_card_game;
 import java.util.Random;
 
 /**
- * EnemyCustomization - Generates enemy appearance based on opposite colors
- * and random face/name
+ * EnemyCustomization - Generates enemy appearance based on player's choices
+ * Uses opposite colors and random face (different from player)
  */
 public class EnemyCustomization {
+
     private String faceType;
     private String hatType;
     private String robeColor;
@@ -22,13 +23,13 @@ public class EnemyCustomization {
 
     /**
      * Generate enemy customization based on player's choices
-     * Uses opposite colors and random face/name
+     * Uses opposite colors and random face (different from player)
      */
     public EnemyCustomization(PlayerCustomization playerCustom) {
         Random rand = new Random();
 
         // Random face (different from player if possible)
-        String[] faces = {"face1", "face2", "face3"};
+        String[] faces = {"RuggedWarrior", "WiseElder", "YoungProdigy"};
         do {
             faceType = faces[rand.nextInt(faces.length)];
         } while (faceType.equals(playerCustom.getFaceType()) && faces.length > 1);
@@ -117,7 +118,15 @@ public class EnemyCustomization {
      * Get image paths (same as PlayerCustomization)
      */
     public String getFaceImagePath() {
-        return "/images/faces/" + faceType + ".png";
+        return "/images/faces/" + faceType + getFaceExtension(faceType);
+    }
+
+    // Maps your filenames to their actual extensions
+    private String getFaceExtension(String name) {
+        return switch (name) {
+            case "RuggedWarrior", "WiseElder", "YoungProdigy" -> ".jpeg";
+            default -> ".png"; // fallback
+        };
     }
 
     public String getHatImagePath() {

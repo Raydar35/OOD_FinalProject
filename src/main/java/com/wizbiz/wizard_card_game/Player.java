@@ -1,10 +1,12 @@
 package com.wizbiz.wizard_card_game;
 
+
 /**
- * Player - Represents the human player
- * Now includes visual customization
+ * Player class - Represents the user's wizard
+ * Extends Character with player-specific behavior and customization
  */
 public class Player extends Actor {
+
     private PlayerCustomization customization;
 
     // Default constructor with default appearance
@@ -29,5 +31,12 @@ public class Player extends Actor {
 
     public String getName() {
         return customization.getPlayerName();
+    }
+
+    /**
+     * Add bonus starting MP to the player (for win streak rewards)
+     */
+    public void addStartingMp(int bonus) {
+        this.manaPoints += bonus;
     }
 }

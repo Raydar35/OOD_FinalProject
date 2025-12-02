@@ -53,19 +53,17 @@ public class PlayerCustomization {
     /**
      * FACE IMAGE — updated to load YOUR PHOTO FILES
      * RuggedWarrior.jpeg
-     * WiseElder.JPG
+     * WiseElder.jpeg
      * YoungProdigy.jpeg
      */
     public String getFaceImagePath() {
-        return "/images/faces/" + faceType + ".jpeg";
+        return "/images/faces/" + faceType + getFaceExtension(faceType);
     }
 
     // Maps your filenames to their actual extensions
     private String getFaceExtension(String name) {
         return switch (name) {
-            case "RuggedWarrior" -> ".jpeg";
-            case "WiseElder" -> ".jpeg";
-            case "YoungProdigy" -> ".jpeg";
+            case "RuggedWarrior", "WiseElder", "YoungProdigy" -> ".jpeg";
             default -> ".png"; // fallback
         };
     }
