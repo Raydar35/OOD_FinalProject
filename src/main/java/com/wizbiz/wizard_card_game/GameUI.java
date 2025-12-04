@@ -77,6 +77,8 @@ public class GameUI extends Application {
     private ImageView previewIcon;
     // Preview hat overlay (shows hat in customization preview)
     private ImageView previewHatIcon;
+    // Preview staff overlay (shows staff in customization preview)
+    private ImageView previewStaffIcon;
     private Circle previewCircle;
 
     // Game state
@@ -151,9 +153,9 @@ public class GameUI extends Application {
         });
         ComboBox<String> faceCombo = (ComboBox<String>) ((HBox) faceBox.getChildren().get(1)).getChildren().get(0);
 
-        // Hat selection
+        // Hat selection (only 4 available hats)
         VBox hatBox = createEnhancedComboBox("🎩 Headwear", new String[]{
-                "Pointy Hat 🎩", "Wide Brim 👒", "Top  👑", "Hood 🧢", "Top Hat 🎓"
+                "Pointy Hat 🎩", "Wide Brim 👒", "Hood 🧢", "Top Hat 🎓"
         });
         ComboBox<String> hatCombo = (ComboBox<String>) ((HBox) hatBox.getChildren().get(1)).getChildren().get(0);
 
@@ -464,17 +466,25 @@ public class GameUI extends Application {
                 // Add outer ring, background circle and image so the image appears inside the circular frame
                 iconPane.getChildren().addAll(outerRing, iconCircle, faceImageView);
 
-                // Hat overlay (bound to iconCircle). Slightly wider than circle and offset upward.
-                ImageView hatView = addHatOverlay(iconPane, iconCircle, 1.2, -0.9);
-                // Set hat image for this character (player or enemy) and log result
+                // Hat overlay with dynamic positioning
+                String hatType = isPlayer ? playerCustomization.getHatType() : enemyCustomization.getHatType();
+                double yOffset = "pointy_hat".equals(hatType) ? -0.95 :
+                                "hood".equals(hatType) ? -0.6 : -0.7;
+                ImageView hatView = addHatOverlay(iconPane, iconCircle, 1.2, yOffset);
                 String hatPath = isPlayer ? playerCustomization.getHatImagePath() : enemyCustomization.getHatImagePath();
-                boolean hatOk = setHatImage(hatView, hatPath);
-                if (!hatOk) {
-                    String who = isPlayer ? "player" : "enemy";
-                    String msg = "[HAT] Could not load hat for " + who + ": " + hatPath + "\n";
-                    System.out.println(msg.trim());
-                    if (logArea != null) logArea.appendText(msg);
+                setHatImage(hatView, hatPath);
+
+                // Hood: position after rim but before face
+                if ("hood".equals(hatType)) {
+                    int faceIndex = iconPane.getChildren().indexOf(faceImageView);
+                    iconPane.getChildren().remove(hatView);
+                    iconPane.getChildren().add(faceIndex, hatView);
                 }
+
+                // Staff overlay
+                ImageView staffView = addStaffOverlay(iconPane, iconCircle, 0.8, -0.4, 0.0);
+                String staffPath = isPlayer ? playerCustomization.getStaffImagePath() : enemyCustomization.getStaffImagePath();
+                setStaffImage(staffView, staffPath);
             } else {
                 System.out.println("WARNING: Could not find face image: " + facePath);
             }
@@ -497,16 +507,24 @@ public class GameUI extends Application {
 
             iconPane.getChildren().addAll(outerRing, iconCircle, fallbackIcon);
 
-            // Still show hat overlay even if face image missing
-            ImageView hatView = addHatOverlay(iconPane, iconCircle, 1.2, -0.9);
+            // Hat overlay (fallback case) with dynamic positioning
+            String hatType = isPlayer ? playerCustomization.getHatType() : enemyCustomization.getHatType();
+            double yOffset = "pointy_hat".equals(hatType) ? -0.95 :
+                            "hood".equals(hatType) ? -0.6 : -0.7;
+            ImageView hatView = addHatOverlay(iconPane, iconCircle, 1.2, yOffset);
             String hatPath = isPlayer ? playerCustomization.getHatImagePath() : enemyCustomization.getHatImagePath();
-            boolean hatOk = setHatImage(hatView, hatPath);
-            if (!hatOk) {
-                String who = isPlayer ? "player" : "enemy";
-                String msg = "[HAT] Could not load hat for " + who + ": " + hatPath + "\n";
-                System.out.println(msg.trim());
-                if (logArea != null) logArea.appendText(msg);
+            setHatImage(hatView, hatPath);
+
+            if ("hood".equals(hatType)) {
+                int fallbackIndex = iconPane.getChildren().indexOf(fallbackIcon);
+                iconPane.getChildren().remove(hatView);
+                iconPane.getChildren().add(fallbackIndex, hatView);
             }
+
+            // Staff overlay (fallback case)
+            ImageView staffView = addStaffOverlay(iconPane, iconCircle, 0.8, -0.4, 0.0);
+            String staffPath = isPlayer ? playerCustomization.getStaffImagePath() : enemyCustomization.getStaffImagePath();
+            setStaffImage(staffView, staffPath);
         }
 
         String displayName = isPlayer ?
@@ -1057,6 +1075,13 @@ public class GameUI extends Application {
         previewCircle.setStrokeWidth(3);
         previewCircle.setFill(Color.rgb(50, 50, 80));
 
+        // Add magical glow effect to face circle
+        DropShadow circleGlow = new DropShadow();
+        circleGlow.setColor(Color.GOLD);
+        circleGlow.setRadius(15);
+        circleGlow.setSpread(0.6);
+        previewCircle.setEffect(circleGlow);
+
         // ImageView for displaying the actual character face (clipped to circle)
         previewIcon = new ImageView();
         // bind preview image size to the preview circle diameter so it adapts automatically
@@ -1079,8 +1104,37 @@ public class GameUI extends Application {
         // Stack the circle background and the clipped image so the image appears inside the circle
         StackPane previewStack = new StackPane(previewCircle, previewIcon);
 
-        // Add hat overlay for preview (so preview shows the selected hat)
-        previewHatIcon = addHatOverlay(previewStack, previewCircle, 1.2, -0.9);
+        // Add hat overlay for preview (adjusted to fit all face types)
+        // Pointy hat needs extra upward offset
+        double hatYOffset = -0.7; // Default for most hats
+        previewHatIcon = addHatOverlay(previewStack, previewCircle, 1.2, hatYOffset);
+
+        // Gold box frame for staff (matching the style of the circle around the face)
+        // Box size matches staff size (0.8 scale * 2 = 1.6 * radius, plus small padding)
+        Rectangle staffBox = new Rectangle();
+        staffBox.widthProperty().bind(previewCircle.radiusProperty().multiply(1.7)); // Slightly larger than staff for padding
+        staffBox.heightProperty().bind(previewCircle.radiusProperty().multiply(1.7)); // Square box to frame staff nicely
+        staffBox.setArcWidth(15); // Rounded corners
+        staffBox.setArcHeight(15); // Rounded corners
+        staffBox.setStroke(Color.GOLD);
+        staffBox.setStrokeWidth(3);
+        staffBox.setFill(Color.TRANSPARENT);
+
+        // Add magical glow effect to staff box
+        DropShadow staffGlow = new DropShadow();
+        staffGlow.setColor(Color.GOLD);
+        staffGlow.setRadius(15);
+        staffGlow.setSpread(0.6);
+        staffBox.setEffect(staffGlow);
+
+        StackPane.setAlignment(staffBox, Pos.CENTER_RIGHT);
+        // Position box at same location as staff
+        staffBox.translateXProperty().bind(previewCircle.radiusProperty().multiply(-0.4));
+        staffBox.translateYProperty().bind(previewCircle.radiusProperty().multiply(0.0));
+        previewStack.getChildren().add(staffBox);
+
+        // Add staff overlay for preview (right next to circle, outside but close)
+        previewStaffIcon = addStaffOverlay(previewStack, previewCircle, 0.8, -0.4, 0.0);
 
         Label text = new Label("Your Appearance");
         text.setFont(Font.font("Georgia", FontWeight.BOLD, 16));
@@ -1318,14 +1372,29 @@ public class GameUI extends Application {
             // Apply to preview ImageView
             if (previewIcon != null) previewIcon.setImage(img);
 
-            // Also attempt to set the preview hat image so setHatImage logs success/failure
+            // Update preview hat position and image (DYNAMIC positioning)
             if (previewHatIcon != null) {
-                boolean ok = setHatImage(previewHatIcon, tempCustomization.getHatImagePath());
-                if (!ok) {
-                    String msg = "[HAT] Preview hat not found: " + tempCustomization.getHatImagePath() + "\n";
-                    System.out.println(msg.trim());
-                    if (logArea != null) logArea.appendText(msg);
+                // Dynamic offset based on hat type
+                double yOffset = "pointy_hat".equals(hat) ? -0.95 :
+                                "hood".equals(hat) ? -0.6 : -0.7;
+
+                // Unbind and rebind with new offset to update position dynamically
+                previewHatIcon.translateYProperty().unbind();
+                previewHatIcon.translateYProperty().bind(previewCircle.radiusProperty().multiply(yOffset));
+                setHatImage(previewHatIcon, tempCustomization.getHatImagePath());
+
+                // Hood: between circle and face
+                if ("hood".equals(hat)) {
+                    previewHatIcon.toBack();
+                    previewCircle.toBack();
+                } else {
+                    previewHatIcon.toFront();
                 }
+            }
+
+            // Update preview staff image
+            if (previewStaffIcon != null) {
+                setStaffImage(previewStaffIcon, tempCustomization.getStaffImagePath());
             }
 
         } catch (Exception e) {
@@ -1813,49 +1882,59 @@ public class GameUI extends Application {
         launch(args);
     }
 
-    // Helper: add a hat overlay ImageView to the given StackPane and bind its size/position to the circle
-    private ImageView addHatOverlay(StackPane container, Circle iconCircle, double hatScale, double yOffsetRatio) {
-        ImageView hatView = new ImageView();
-        hatView.setPreserveRatio(true);
-        // Width = circle diameter * hatScale
-        hatView.fitWidthProperty().bind(iconCircle.radiusProperty().multiply(2 * hatScale));
-        // Align to top-center so it sits above the face
-        StackPane.setAlignment(hatView, Pos.TOP_CENTER);
-        // Vertical offset (negative moves up). Bind to radius so it scales.
-        hatView.translateYProperty().bind(iconCircle.radiusProperty().multiply(yOffsetRatio));
-        // Add to container (on top)
-        container.getChildren().add(hatView);
-        return hatView;
+    // Helper: add overlay ImageView to StackPane with positioning
+    private ImageView addOverlay(StackPane container, Circle iconCircle, double scale, Pos alignment, double xOffset, double yOffset) {
+        ImageView view = new ImageView();
+        view.setPreserveRatio(true);
+        view.fitWidthProperty().bind(iconCircle.radiusProperty().multiply(2 * scale));
+        StackPane.setAlignment(view, alignment);
+        if (xOffset != 0) view.translateXProperty().bind(iconCircle.radiusProperty().multiply(xOffset));
+        if (yOffset != 0) view.translateYProperty().bind(iconCircle.radiusProperty().multiply(yOffset));
+        container.getChildren().add(view);
+        return view;
     }
 
-    private boolean setHatImage(ImageView hatView, String resourcePath) {
-        if (hatView == null) return false;
-        if (resourcePath == null || resourcePath.isEmpty()) {
-            hatView.setImage(null);
+    private ImageView addHatOverlay(StackPane container, Circle iconCircle, double scale, double yOffset) {
+        return addOverlay(container, iconCircle, scale, Pos.TOP_CENTER, 0, yOffset);
+    }
+
+    private ImageView addStaffOverlay(StackPane container, Circle iconCircle, double scale, double xOffset, double yOffset) {
+        return addOverlay(container, iconCircle, scale, Pos.CENTER_RIGHT, xOffset, yOffset);
+    }
+
+    // Unified image loading method
+    private boolean loadImage(ImageView view, String path, String type) {
+        if (view == null || path == null || path.isEmpty()) {
+            if (view != null) view.setImage(null);
             return false;
         }
-        try (InputStream in = getClass().getResourceAsStream(resourcePath)) {
+        try (InputStream in = getClass().getResourceAsStream(path)) {
             if (in == null) {
-                // resource missing
-                hatView.setImage(null);
-                String msg = "[HAT] Resource not found: " + resourcePath + "\n";
-                System.out.println(msg.trim());
-                if (logArea != null) logArea.appendText(msg);
+                view.setImage(null);
+                logMessage(type, "Resource not found: " + path);
                 return false;
             }
-            Image img = new Image(in);
-            hatView.setImage(img);
-            // Log success so hat loads are visible in the same way face loads are
-            String success = "[HAT] Loaded: " + resourcePath + "\n";
-            System.out.println(success.trim());
-            if (logArea != null) logArea.appendText(success);
+            view.setImage(new Image(in));
+            logMessage(type, "Loaded: " + path);
             return true;
         } catch (Exception e) {
-            hatView.setImage(null);
-            String msg = "[HAT] Failed to load: " + resourcePath + " -> " + e.getMessage() + "\n";
-            System.out.println(msg.trim());
-            if (logArea != null) logArea.appendText(msg);
+            view.setImage(null);
+            logMessage(type, "Failed to load: " + path + " -> " + e.getMessage());
             return false;
         }
+    }
+
+    private void logMessage(String type, String message) {
+        String msg = "[" + type + "] " + message + "\n";
+        System.out.println(msg.trim());
+        if (logArea != null) logArea.appendText(msg);
+    }
+
+    private boolean setHatImage(ImageView hatView, String path) {
+        return loadImage(hatView, path, "HAT");
+    }
+
+    private boolean setStaffImage(ImageView staffView, String path) {
+        return loadImage(staffView, path, "STAFF");
     }
 }

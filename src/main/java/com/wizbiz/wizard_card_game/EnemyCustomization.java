@@ -48,7 +48,7 @@ public class EnemyCustomization {
     }
 
     /**
-     * Get opposite hat type
+     * Get opposite hat type (only 4 available hats)
      */
     private String getOppositeHat(String playerHat) {
         switch (playerHat) {
@@ -56,10 +56,8 @@ public class EnemyCustomization {
                 return "wide_brim_hat";
             case "wide_brim_hat":
                 return "pointy_hat";
-            case "crown":
-                return "hood";
             case "hood":
-                return "crown";
+                return "top_hat";
             case "top_hat":
                 return "hood";
             default:
@@ -129,14 +127,14 @@ public class EnemyCustomization {
         };
     }
 
-    public String getHatImagePath() { if (hatType == null || hatType.isEmpty()) return "/images/hats/TopHat.jpg";
+    public String getHatImagePath() {
+        if (hatType == null || hatType.isEmpty()) return "/images/hats/TopHat.jpg";
         if (hatType.contains(".")) return "/images/hats/" + hatType;
         return switch (hatType) {
             case "pointy_hat" -> "/images/hats/PointyHat.jpg";
             case "wide_brim_hat" -> "/images/hats/WideBrim.jpg";
-            case "hood" -> "/images/hats/Hood.jpg";
+            case "hood" -> "/images/hats/hood.jpg";
             case "top_hat" -> "/images/hats/TopHat.jpg";
-            case "crown" -> "/images/hats/TopHat.jpg";
             default -> "/images/hats/TopHat.jpg";
         };
     }
@@ -146,7 +144,16 @@ public class EnemyCustomization {
     }
 
     public String getStaffImagePath() {
-        return "/images/staffs/" + staffType + ".png";
+        if (staffType == null || staffType.isEmpty()) return "/images/staff/WoodStaff.png";
+
+        // Map internal tokens to the exact resource filenames
+        return switch (staffType) {
+            case "wooden_staff" -> "/images/staff/WoodStaff.png";
+            case "crystal_staff" -> "/images/staff/CrystalStaff.png";
+            case "bone_staff" -> "/images/staff/BoneStaff.png";
+            case "gold_staff" -> "/images/staff/GoldStaff.png";
+            default -> "/images/staff/WoodStaff.png";
+        };
     }
 
     public String getCompositeAvatarPath() {
