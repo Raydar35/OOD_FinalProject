@@ -87,6 +87,18 @@ public class GameUI extends Application implements GameObserver {
         winStreak = 0;
         currentDifficulty = 1;
 
+        // Preserve full screen and maximized states
+        boolean wasFullScreen = primaryStage.isFullScreen();
+        boolean wasMaximized = primaryStage.isMaximized();
+
+        // Get current scene dimensions to preserve window size
+        double sceneWidth = WINDOW_WIDTH;
+        double sceneHeight = WINDOW_HEIGHT;
+        if (primaryStage.getScene() != null) {
+            sceneWidth = primaryStage.getScene().getWidth();
+            sceneHeight = primaryStage.getScene().getHeight();
+        }
+
         StackPane root = new StackPane();
         root.setBackground(createDeepPurpleBackground());
 
@@ -170,9 +182,18 @@ public class GameUI extends Application implements GameObserver {
         customizationBox.getChildren().addAll(titleBox, customPanel);
         root.getChildren().add(customizationBox);
 
-        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+        Scene scene = new Scene(root, sceneWidth, sceneHeight);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Wizard Character Creation");
+
+        // Restore full screen and maximized states
+        if (wasMaximized) {
+            primaryStage.setMaximized(true);
+        }
+        if (wasFullScreen) {
+            primaryStage.setFullScreen(true);
+        }
+
         primaryStage.show();
         playFadeIn(root);
     }
@@ -185,6 +206,18 @@ public class GameUI extends Application implements GameObserver {
         gameEnded = false;
         lastHandSize = -1;
         if (isContinuation) enemyCustomization = new EnemyCustomization(playerCustomization);
+
+        // Preserve full screen and maximized states
+        boolean wasFullScreen = primaryStage.isFullScreen();
+        boolean wasMaximized = primaryStage.isMaximized();
+
+        // Get current scene dimensions to preserve window size
+        double sceneWidth = WINDOW_WIDTH;
+        double sceneHeight = WINDOW_HEIGHT;
+        if (primaryStage.getScene() != null) {
+            sceneWidth = primaryStage.getScene().getWidth();
+            sceneHeight = primaryStage.getScene().getHeight();
+        }
 
         StackPane root = new StackPane();
         root.setBackground(createDeepPurpleBackground());
@@ -212,8 +245,16 @@ public class GameUI extends Application implements GameObserver {
             }
         });
 
-        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+        Scene scene = new Scene(root, sceneWidth, sceneHeight);
         primaryStage.setScene(scene);
+
+        // Restore full screen and maximized states
+        if (wasMaximized) {
+            primaryStage.setMaximized(true);
+        }
+        if (wasFullScreen) {
+            primaryStage.setFullScreen(true);
+        }
 
         String difficultyText = currentDifficulty > 1 ? " [Difficulty " + currentDifficulty + "]" : "";
         primaryStage.setTitle(playerCustomization.getPlayerName() + " vs " + enemyCustomization.getEnemyName() + difficultyText);
@@ -577,6 +618,18 @@ public class GameUI extends Application implements GameObserver {
         winStreak++;
         currentDifficulty++;
 
+        // Preserve full screen and maximized states
+        boolean wasFullScreen = primaryStage.isFullScreen();
+        boolean wasMaximized = primaryStage.isMaximized();
+
+        // Get current scene dimensions to preserve window size
+        double sceneWidth = WINDOW_WIDTH;
+        double sceneHeight = WINDOW_HEIGHT;
+        if (primaryStage.getScene() != null) {
+            sceneWidth = primaryStage.getScene().getWidth();
+            sceneHeight = primaryStage.getScene().getHeight();
+        }
+
         StackPane root = new StackPane();
         root.setBackground(createVictoryBackground());
 
@@ -719,14 +772,34 @@ public class GameUI extends Application implements GameObserver {
         victoryBox.getChildren().addAll(titleBox, victoryPanel);
         root.getChildren().add(victoryBox);
 
-        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+        Scene scene = new Scene(root, sceneWidth, sceneHeight);
         primaryStage.setScene(scene);
         primaryStage.setTitle("VICTORY!");
+
+        // Restore full screen and maximized states
+        if (wasMaximized) {
+            primaryStage.setMaximized(true);
+        }
+        if (wasFullScreen) {
+            primaryStage.setFullScreen(true);
+        }
 
         playFadeIn(root);
     }
 
     private void showDefeatScreen() {
+        // Preserve full screen and maximized states
+        boolean wasFullScreen = primaryStage.isFullScreen();
+        boolean wasMaximized = primaryStage.isMaximized();
+
+        // Get current scene dimensions to preserve window size
+        double sceneWidth = WINDOW_WIDTH;
+        double sceneHeight = WINDOW_HEIGHT;
+        if (primaryStage.getScene() != null) {
+            sceneWidth = primaryStage.getScene().getWidth();
+            sceneHeight = primaryStage.getScene().getHeight();
+        }
+
         StackPane root = new StackPane();
         root.setBackground(createDefeatBackground());
 
@@ -852,9 +925,17 @@ public class GameUI extends Application implements GameObserver {
         defeatBox.getChildren().addAll(titleBox, defeatPanel);
         root.getChildren().add(defeatBox);
 
-        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+        Scene scene = new Scene(root, sceneWidth, sceneHeight);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Defeat");
+
+        // Restore full screen and maximized states
+        if (wasMaximized) {
+            primaryStage.setMaximized(true);
+        }
+        if (wasFullScreen) {
+            primaryStage.setFullScreen(true);
+        }
 
         playFadeIn(root);
     }
