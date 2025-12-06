@@ -611,8 +611,8 @@ public class GameUI extends Application implements GameObserver {
         );
 
         // Winner icon
-        Label winnerIcon = new Label("V");
-        winnerIcon.setFont(Font.font("Georgia", FontWeight.BOLD, 75));
+        Label winnerIcon = new Label("Wizardly Victory");
+        winnerIcon.setFont(Font.font("Georgia", FontWeight.BOLD, 55));
         winnerIcon.setTextFill(Color.web("#FFD700"));
         winnerIcon.setEffect(createGlowEffect(Color.web("#32CD32"), 30, 0.8));
 
@@ -765,8 +765,8 @@ public class GameUI extends Application implements GameObserver {
         );
 
         // Defeat icon
-        Label defeatIcon = new Label("X");
-        defeatIcon.setFont(Font.font("Georgia", FontWeight.BOLD, 75));
+        Label defeatIcon = new Label("Wasted Potential");
+        defeatIcon.setFont(Font.font("Georgia", FontWeight.BOLD, 55));
         defeatIcon.setTextFill(Color.web("#DC143C"));
         defeatIcon.setEffect(createGlowEffect(Color.web("#8B0000"), 30, 0.8));
 
