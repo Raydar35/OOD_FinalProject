@@ -21,13 +21,6 @@ public class Player extends Actor {
         this.customization = customization;
     }
 
-    public PlayerCustomization getCustomization() {
-        return customization;
-    }
-
-    public void setCustomization(PlayerCustomization customization) {
-        this.customization = customization;
-    }
 
     public String getName() {
         return customization.getPlayerName();

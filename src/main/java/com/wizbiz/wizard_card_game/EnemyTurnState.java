@@ -1,27 +1,24 @@
 package com.wizbiz.wizard_card_game;
 
-/**
- * EnemyTurnState - Handles the enemy's turn in the game
- * Part of the State Pattern
- */
+import com.wizbiz.wizard_card_game.commands.CastSpellCommand;
+import com.wizbiz.wizard_card_game.commands.DrawCardCommand;
+
+// STATE + COMMAND patterns - enemy AI turn
 public class EnemyTurnState implements BattleState {
     private final GameController gc = GameController.getInstance();
 
     @Override
     public void enter() {
         gc.logAction("=== Enemy's turn begins ===");
-        gc.getEnemy().startTurnEffects(); // start-of-turn effects
-        gc.drawForActor(gc.getEnemy(), 1); // Enemy draws 1 card at start of turn
+        gc.getEnemy().startTurnEffects();
+        gc.executeCommand(new DrawCardCommand(gc.getEnemy(), 1));
 
-        // Enemy AI chooses and plays
         String chosen = EnemyAI.chooseBestSpell(gc.getEnemy());
-
         if (chosen != null) {
-            gc.playCard(gc.getEnemy(), chosen, gc.getPlayer());
+            gc.executeCommand(new CastSpellCommand(gc.getEnemy(), gc.getPlayer(), chosen));
         } else {
             gc.logAction("Enemy has no playable cards!");
         }
-
         nextState();
     }
 

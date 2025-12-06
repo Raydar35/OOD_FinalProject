@@ -24,13 +24,6 @@ public class Enemy extends Actor {
         this.customization = customization;
     }
 
-    public EnemyCustomization getCustomization() {
-        return customization;
-    }
-
-    public void setCustomization(EnemyCustomization customization) {
-        this.customization = customization;
-    }
 
     public String getName() {
         return customization != null ? customization.getEnemyName() : "Dark Wizard";

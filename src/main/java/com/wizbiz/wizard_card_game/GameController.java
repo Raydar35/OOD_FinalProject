@@ -1,22 +1,34 @@
 package com.wizbiz.wizard_card_game;
 
+import com.wizbiz.wizard_card_game.commands.Command;
+
+import java.util.ArrayList;
+import java.util.List;
+
+// SINGLETON - Central game manager using Observer, Command, and State patterns
 public class GameController {
 
+    // SINGLETON - only one game instance
     private static GameController instance;
 
+    // STATE PATTERN - current turn
     private BattleState currentState;
+
     private Player player;
     private Enemy enemy;
-
     private Deck deck;
     private DeckIterator deckIterator;
-
     private GameUI ui;
+
+    // OBSERVER PATTERN - auto-notify observers of changes
+    private List<GameObserver> observers = new ArrayList<>();
 
     private StringBuilder actionLog = new StringBuilder();
 
+    // SINGLETON - private constructor
     private GameController() {}
 
+    // SINGLETON - get instance (creates if needed)
     public static GameController getInstance() {
         if (instance == null) {
             instance = new GameController();
@@ -24,35 +36,31 @@ public class GameController {
         return instance;
     }
 
-    // UI must call this before startGame so UI can be updated by controller
     public void setUI(GameUI ui) {
         this.ui = ui;
     }
 
-    public GameUI getUI() { return ui; }
+    // OBSERVER PATTERN - register/notify observers
 
-    public void startGame() {
-        // initialize model
-        player = new Player();
-        enemy = new Enemy();
-
-        deck = new Deck();                 // shared deck
-        deckIterator = deck.iterator();    // single iterator from whole game
-
-        // initial draws
-        player.drawCards(deckIterator, 5);
-        enemy.drawCards(deckIterator, 5);
-
-        logAction("Game started.");
-        logAction("Player and Enemy drew initial hands.");
-
-        // initial state
-        changeState(new PlayerTurnState());
+    public void addObserver(GameObserver observer) {
+        if (!observers.contains(observer)) {
+            observers.add(observer);
+        }
     }
 
-    /**
-     * Start game with customized player and auto-generated enemy
-     */
+    private void notifyObservers() {
+        for (GameObserver observer : observers) {
+            observer.update();
+        }
+    }
+
+    // COMMAND PATTERN - execute action commands
+
+    public void executeCommand(Command command) {
+        logAction("→ " + command.getDescription());
+        command.execute();
+    }
+
     public void startGameWithCustomizations(Player customPlayer, Enemy customEnemy) {
         player = customPlayer;
         enemy = customEnemy;
@@ -70,47 +78,50 @@ public class GameController {
         changeState(new PlayerTurnState());
     }
 
-    public DeckIterator getDeckIterator() { return deckIterator; }
-
-
     //============================================
     // Methods used by UI
     //============================================
+
+    /**
+     * Called when player clicks a spell card.
+     * Delegates to current state to handle the action.
+     */
     public void castSpell(String spellName) {
         currentState.castSpell(spellName);
     }
 
-    public void endTurn() {
-        if (currentState != null) currentState.nextState();
-    }
-
-    // Getters for UI
+    // Getters for UI to display current game state
     public Player getPlayer() { return player; }
     public Enemy getEnemy() { return enemy; }
 
+    /**
+     * Logs an action to the battle log and updates the UI.
+     */
     public void logAction(String text) {
         actionLog.append(text).append("\n");
-        // update UI immediately if present
+        // Update UI immediately if present
         if (ui != null) ui.updateLog(actionLog.toString());
     }
-
-    public String getActionLog() {
-        return actionLog.toString();
-    }
-
 
     //============================================
     // Methods used by Actor classes
     //============================================
+
+    /**
+     * Draws cards for an actor (player or enemy) from the deck.
+     */
     public void drawForActor(Actor actor, int count) {
         if (deckIterator == null) return;
         actor.drawCards(deckIterator, count);
         logAction((actor instanceof Player ? "Player" : "Enemy") + " drew " + count + " card(s).");
-        if (ui != null) ui.refreshUI();
+        notifyObservers(); // Observer Pattern - notify all observers
     }
 
-    // Attempt to play a card from an actor's hand against a target.
-    // Returns true if a matching card was found and used (cast attempted).
+    /**
+     * Attempts to play a card from an actor's hand against a target.
+     * Searches hand for matching card, removes it, and casts the spell.
+     * Returns true if a matching card was found and played successfully.
+     */
     public boolean playCard(Actor actor, String cardName, Actor target) {
         SpellCard playedCard = null;
         for (SpellCard c : actor.getHand()) {
@@ -124,16 +135,21 @@ public class GameController {
             return false;
         }
 
-        // remove from hand, log, cast, refresh UI
         actor.getHand().remove(playedCard);
         logAction((actor instanceof Player ? "Player" : "Enemy") + " played: " + playedCard.getName());
         playedCard.getSpell().cast(actor, target);
-        if (ui != null) ui.refreshUI();
+        notifyObservers();
         return true;
     }
+
+    // STATE PATTERN - manage turn transitions
 
     public void changeState(BattleState state) {
         currentState = state;
         currentState.enter();
+    }
+
+    public BattleState getCurrentState() {
+        return currentState;
     }
 }

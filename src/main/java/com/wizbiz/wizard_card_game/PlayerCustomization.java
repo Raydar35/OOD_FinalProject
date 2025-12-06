@@ -17,7 +17,9 @@ public class PlayerCustomization {
     // Player name
     private String playerName;
 
-    // Default constructor
+    /**
+     * Default constructor - creates a wizard with default appearance.
+     */
     public PlayerCustomization() {
         this.faceType = "WiseElder";   // default your first image
         this.hatType = "pointy_hat";
@@ -26,7 +28,9 @@ public class PlayerCustomization {
         this.playerName = "Wizard";
     }
 
-    // Constructor with custom values
+    /**
+     * Full constructor - creates a wizard with all custom choices.
+     */
     public PlayerCustomization(String faceType, String hatType, String robeColor,
                                String staffType, String playerName) {
         this.faceType = faceType;
@@ -36,19 +40,12 @@ public class PlayerCustomization {
         this.playerName = playerName;
     }
 
-    // Getters
+    // Getters for all customization options
     public String getFaceType() { return faceType; }
     public String getHatType() { return hatType; }
     public String getRobeColor() { return robeColor; }
     public String getStaffType() { return staffType; }
     public String getPlayerName() { return playerName; }
-
-    // Setters
-    public void setFaceType(String faceType) { this.faceType = faceType; }
-    public void setHatType(String hatType) { this.hatType = hatType; }
-    public void setRobeColor(String robeColor) { this.robeColor = robeColor; }
-    public void setStaffType(String staffType) { this.staffType = staffType; }
-    public void setPlayerName(String playerName) { this.playerName = playerName; }
 
     /**
      * FACE IMAGE — updated to load YOUR PHOTO FILES
@@ -60,7 +57,10 @@ public class PlayerCustomization {
         return "/images/faces/" + faceType + getFaceExtension(faceType);
     }
 
-    // Maps your filenames to their actual extensions
+    /**
+     * Returns the file extension for face images.
+     * All face images are currently .jpeg files.
+     */
     private String getFaceExtension(String name) {
         return switch (name) {
             case "RuggedWarrior", "WiseElder", "YoungProdigy" -> ".jpeg";
@@ -89,14 +89,7 @@ public class PlayerCustomization {
     }
 
     /**
-     * Get the file path for the robe image
-     */
-    public String getRobeImagePath() {
-        return "/images/robes/" + robeColor + "_robe.png";
-    }
-
-    /**
-     * Get the file path for the staff image
+     * Get the file path for the staff image.
      */
     public String getStaffImagePath() {
         if (staffType == null || staffType.isEmpty()) return "/images/staff/WoodStaff.png";
@@ -109,13 +102,5 @@ public class PlayerCustomization {
             case "gold_staff" -> "/images/staff/GoldStaff.png";
             default -> "/images/staff/WoodStaff.png";
         };
-    }
-
-    /**
-     * Composite avatar (you are not using this yet)
-     */
-    public String getCompositeAvatarPath() {
-        return "/images/avatars/" + faceType + "_" + hatType + "_" +
-                robeColor + "_" + staffType + ".png";
     }
 }

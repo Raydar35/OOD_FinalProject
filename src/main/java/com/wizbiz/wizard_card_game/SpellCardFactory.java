@@ -4,17 +4,9 @@ import com.wizbiz.wizard_card_game.spells.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Factory Method Pattern - Creates spell cards
- * Centralized spell creation makes it easy to add new spells
- */
+// FACTORY METHOD - creates spell cards
 public class SpellCardFactory {
 
-    /**
-     * Creates a single spell card by name
-     * @param name The name of the spell to create
-     * @return SpellCard object or null if spell name not found
-     */
     public static SpellCard create(String name) {
         switch (name) {
             case "Fireball":
@@ -55,12 +47,6 @@ public class SpellCardFactory {
         }
     }
 
-    /**
-     * Creates multiple copies of the same spell card
-     * @param name The name of the spell
-     * @param copies The number of copies to create
-     * @return List of spell cards
-     */
     public static List<SpellCard> createMultiple(String name, int copies) {
         List<SpellCard> list = new ArrayList<>();
         for (int i = 0; i < copies; i++) {

@@ -105,11 +105,9 @@ public class EnemyCustomization {
         }
     }
 
-    // Getters
-    public String getFaceType() { return faceType; }
+    // Getters for all enemy customization options
     public String getHatType() { return hatType; }
     public String getRobeColor() { return robeColor; }
-    public String getStaffType() { return staffType; }
     public String getEnemyName() { return enemyName; }
 
     /**
@@ -119,7 +117,10 @@ public class EnemyCustomization {
         return "/images/faces/" + faceType + getFaceExtension(faceType);
     }
 
-    // Maps your filenames to their actual extensions
+    /**
+     * Returns the file extension for face images.
+     * All face images are currently .jpeg files.
+     */
     private String getFaceExtension(String name) {
         return switch (name) {
             case "RuggedWarrior", "WiseElder", "YoungProdigy" -> ".jpeg";
@@ -127,6 +128,9 @@ public class EnemyCustomization {
         };
     }
 
+    /**
+     * Get the file path for the hat image.
+     */
     public String getHatImagePath() {
         if (hatType == null || hatType.isEmpty()) return "/images/hats/TopHat.jpg";
         if (hatType.contains(".")) return "/images/hats/" + hatType;
@@ -139,10 +143,9 @@ public class EnemyCustomization {
         };
     }
 
-    public String getRobeImagePath() {
-        return "/images/robes/" + robeColor + "_robe.png";
-    }
-
+    /**
+     * Get the file path for the staff image.
+     */
     public String getStaffImagePath() {
         if (staffType == null || staffType.isEmpty()) return "/images/staff/WoodStaff.png";
 
@@ -154,10 +157,5 @@ public class EnemyCustomization {
             case "gold_staff" -> "/images/staff/GoldStaff.png";
             default -> "/images/staff/WoodStaff.png";
         };
-    }
-
-    public String getCompositeAvatarPath() {
-        return "/images/avatars/" + faceType + "_" + hatType + "_" +
-                robeColor + "_" + staffType + ".png";
     }
 }
